@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 
-import 'views/home_docente.dart';
+import 'package:flutter/material.dart';
+import 'views/homeAlumno.dart';
 
 void main() {
   runApp(const MiAplicacion());
@@ -11,9 +11,9 @@ class MiAplicacion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeDocente(),
+      home: const HomeAlumno(),
     );
   }
 }
