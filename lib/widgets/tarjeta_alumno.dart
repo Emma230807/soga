@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/alumno.dart';
+import 'item_tarea.dart';
 
 class TarjetaAlumno extends StatelessWidget {
   final Alumno alumno;
@@ -93,18 +94,38 @@ class TarjetaAlumno extends StatelessWidget {
               ),
             ),
           ),
+
           if (abierto)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Divider(),
-                  SizedBox(height: 6),
-                  Text(
-                    'Tareas pendientes del alumno',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF858099)),
+                  const Divider(),
+
+                  const SizedBox(height: 8),
+
+                  const Text(
+                    'TAREAS PENDIENTES',
+                    style: TextStyle(
+                      fontSize: 10,
+                      letterSpacing: 1,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF858099),
+                    ),
                   ),
+
+                  const SizedBox(height: 12),
+
+                  ...alumno.tareas
+                      .where((tarea) => !tarea.completada)
+                      .map((tarea) => ItemTarea(tarea: tarea)),
+
+                  if (alumno.tareasPendientes == 0)
+                    const Text(
+                      'No hay tareas pendientes',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF858099)),
+                    ),
                 ],
               ),
             ),

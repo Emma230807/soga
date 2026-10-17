@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:soga/models/datos_docente.dart';
 
+import '../datasourses/datos_docente.dart';
 import '../widgets/encabezado_docente.dart';
 import '../widgets/selector_grupo.dart';
 import '../widgets/seccion_alumnos.dart';
@@ -18,6 +18,9 @@ class _HomeDocenteState extends State<HomeDocente> {
 
   @override
   Widget build(BuildContext context) {
+    // Obtener alumnos según el grupo elegido
+    final alumnosActuales = alumnosPorGrupo[grupoSeleccionado] ?? [];
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
       body: Column(
@@ -45,7 +48,7 @@ class _HomeDocenteState extends State<HomeDocente> {
                   const SizedBox(height: 22),
 
                   SeccionAlumnos(
-                    alumnos: alumnosDocente,
+                    alumnos: alumnosActuales,
                     alumnoAbierto: alumnoAbierto,
                     onAlumnoTap: (index) {
                       setState(() {
