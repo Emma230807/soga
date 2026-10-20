@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/views/login.dart';
 
 import 'views/home_docente.dart';
 
@@ -11,9 +12,6 @@ class MiAplicacion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomeDocente(),
-    );
+    return const MaterialApp(debugShowCheckedModeBanner: false, home: Login());
   }
 }
