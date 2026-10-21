@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soga/views/login.dart';
 
-import 'views/home_docente.dart';
-
 void main() {
   runApp(const MiAplicacion());
 }
