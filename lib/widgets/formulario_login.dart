@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:soga/views/homeAlumno.dart';
 import 'package:soga/views/home_administrador.dart';
-import 'package:soga/views/pantalla_AgregarNota.dart';
+
 import 'package:soga/widgets/campo_login.dart';
 import 'package:soga/datasourses/datos_temporales.dart';
 import 'package:soga/models/usuario_sesion.dart';

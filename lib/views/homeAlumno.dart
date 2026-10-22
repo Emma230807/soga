@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/views/pantalla_calendario.dart';
 import 'package:soga/views/pantalla_tareas.dart';
 import 'package:soga/widgets/formulario_nueva_tarea.dart';
 
@@ -30,6 +31,12 @@ class _HomeAlumnoState extends State<HomeAlumno> {
       builder: (context) {
         return const FormularioNuevaTarea();
       },
+    );
+  }
+    void abrirPantallaCalendario() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CalendarScreen()),
     );
   }
 
@@ -185,13 +192,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       colorFondo: Color(0xFFD5F8E9),
                       colorIcono: Color(0xFF25C99B),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "Falta conectar la pantalla Calendario",
-                            ),
-                          ),
-                        );
+                       abrirPantallaCalendario();
                       },
                     ),
                   ),
