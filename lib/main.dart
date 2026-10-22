@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:soga/views/pantalla_AgregarNota.dart';
+
+import 'package:soga/views/pantalla_tareas.dart';
 
 
 
@@ -16,7 +17,7 @@ class MiAplicacion extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      home: PantallaAgregarnota(),
+      home: PantallaTareas(),
 
     );
   }
