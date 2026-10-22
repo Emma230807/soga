@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:soga/views/pantalla_AgregarNota.dart';
-import 'package:soga/views/pantalla_login.dart';
+import 'package:soga/views/vista_splash.dart';
 
 void main() {
   runApp(const MiAplicacion());
@@ -13,7 +12,7 @@ class MiAplicacion extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: PantallaAgregarnota(),
+      home: SplashScreen(),
     );
   }
 }

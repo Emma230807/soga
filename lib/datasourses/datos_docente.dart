@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import '../models/alumno.dart';
 import '../models/tarea.dart';
 
+// GRUPOS DEL DOCENTE
 const List<String> gruposDocente = [
   '3° A · Matemáticas',
   '3° B · Matemáticas',
   '2° A · Física',
 ];
 
+// ALUMNOS ORGANIZADOS POR GRUPO
 const Map<String, List<Alumno>> alumnosPorGrupo = {
   '3° A · Matemáticas': [
     Alumno(
+      codigoAlumno: 'ALU-0002',
       nombre: 'Ana Martínez',
       iniciales: 'AM',
       color: Color(0xFF7648FF),
@@ -21,6 +24,7 @@ const Map<String, List<Alumno>> alumnosPorGrupo = {
       ],
     ),
     Alumno(
+      codigoAlumno: 'ALU-0003',
       nombre: 'Diego Hernández',
       iniciales: 'DH',
       color: Color(0xFFFF754F),
@@ -32,6 +36,7 @@ const Map<String, List<Alumno>> alumnosPorGrupo = {
       ],
     ),
     Alumno(
+      codigoAlumno: 'ALU-0004',
       nombre: 'Lucía Torres',
       iniciales: 'LT',
       color: Color(0xFF31CFA1),
@@ -45,6 +50,7 @@ const Map<String, List<Alumno>> alumnosPorGrupo = {
 
   '3° B · Matemáticas': [
     Alumno(
+      codigoAlumno: 'ALU-0005',
       nombre: 'Carlos López',
       iniciales: 'CL',
       color: Color(0xFF7648FF),
@@ -56,6 +62,7 @@ const Map<String, List<Alumno>> alumnosPorGrupo = {
       ],
     ),
     Alumno(
+      codigoAlumno: 'ALU-0006',
       nombre: 'Sofía Ramírez',
       iniciales: 'SR',
       color: Color(0xFF31CFA1),
@@ -68,12 +75,14 @@ const Map<String, List<Alumno>> alumnosPorGrupo = {
 
   '2° A · Física': [
     Alumno(
+      codigoAlumno: 'ALU-0007',
       nombre: 'Pedro Sánchez',
       iniciales: 'PS',
       color: Color(0xFFFF754F),
       tareas: [Tarea(titulo: 'Leyes de Newton', fechaEntrega: '27 de octubre')],
     ),
     Alumno(
+      codigoAlumno: 'ALU-0008',
       nombre: 'Mariana Gómez',
       iniciales: 'MG',
       color: Color(0xFF7648FF),
