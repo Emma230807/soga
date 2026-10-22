@@ -1,6 +1,10 @@
 
 import 'package:flutter/material.dart';
 
+import '../controllers/tarea_controller.dart';
+import '../widgets/tarjeta_acceso.dart';
+import '../widgets/tarjeta_tarea.dart';
+
 class HomeAlumno extends StatefulWidget {
   const HomeAlumno({super.key});
 
@@ -9,370 +13,261 @@ class HomeAlumno extends StatefulWidget {
 }
 
 class _HomeAlumnoState extends State<HomeAlumno> {
+
+  // CONTROLADOR DE TAREAS
+  final TareasController controlador = TareasController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F7FC),
+      backgroundColor: Color(0xFFF8F7FC),
 
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             // ENCABEZADO MORADO
             Container(
+              height: 250,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF693BFF),
-                    Color(0xFF9B66F5),
-                  ],
-                ),
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(25),
                   bottomRight: Radius.circular(25),
                 ),
               ),
+
               child: SafeArea(
                 bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.all(25),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Viernes, 16 de Octubre",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                      ),
+                    ),
 
-                      const Text(
-                        'Jueves, 17 de septiembre',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white70,
+                    SizedBox(height: 10),
+
+                    Text(
+                      "Hola, Oswaldo",
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    SizedBox(height: 5),
+
+                    Text(
+                      "Tienes ${controlador.pendientes} tareas pendientes",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+
+                    SizedBox(height: 25),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Progreso",
+                          style: TextStyle(color: Colors.white),
+                        ),
+
+                        Text(
+                          "${controlador.completadas}/${controlador.tareas.length} completadas",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 10),
+
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: controlador.progreso,
+                        minHeight: 8,
+                        backgroundColor: Colors.white30,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.amber,
                         ),
                       ),
-
-                      const SizedBox(height: 10),
-
-                      const Text(
-                        '¡Hola, Oswaldo! 👋',
-                        style: TextStyle(
-                          fontSize: 26,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(height: 5),
-
-                      const Text(
-                        'Tienes 4 tareas pendientes',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      const Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Progreso',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            '1/5 completadas',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: const LinearProgressIndicator(
-                          value: 0.2,
-                          minHeight: 7,
-                          backgroundColor: Colors.white30,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color(0xFFFFD76A),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
 
-            // CONTENIDO PRINCIPAL
+            SizedBox(height: 20),
+
+            // TÍTULO ACCESOS
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                "ACCESOS",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            SizedBox(height: 15),
+
+            // PRIMERA FILA DE TARJETAS
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
                 children: [
-                  const Text(
-                    'ACCESOS',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: TarjetaAcceso(
+                      titulo: "Tareas",
+                      subtitulo: "${controlador.pendientes} pendientes",
+                      icono: Icons.check_box_outlined,
+                      colorFondo: Color(0xFFECE9FF),
+                      colorIcono: Colors.deepPurple,
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Falta conectar la pantalla Tareas",
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  SizedBox(width: 12),
 
-                  // PRIMERA FILA DE TARJETAS
-                  Row(
-                    children: [
-                      tarjeta(
-                        'Tareas',
-                        '4 pendientes',
-                        Icons.check_circle_outline,
-                        const Color(0xFFECE9FF),
-                        const Color(0xFF7454EE),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      tarjeta(
-                        'Notas',
-                        'Tus apuntes',
-                        Icons.description_outlined,
-                        const Color(0xFFFFEBE5),
-                        const Color(0xFFFF784F),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // SEGUNDA FILA DE TARJETAS
-                  Row(
-                    children: [
-                      tarjeta(
-                        'Calendario',
-                        'Ver fechas',
-                        Icons.calendar_month,
-                        const Color(0xFFD5F8E9),
-                        const Color(0xFF25C99B),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      tarjeta(
-                        'Nueva tarea',
-                        'Agregar rápido',
-                        Icons.add,
-                        const Color(0xFFFFF8C4),
-                        const Color(0xFFFFB900),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // ENCABEZADO DE PENDIENTES
-                  const Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'PENDIENTES',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Ver todas →',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF7454EE),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  // LISTA VISUAL DE TAREAS
-                  tarea(
-                    'Entregar ensayo de Historia',
-                    'Historia Universal',
-                    '8 nov',
-                    Colors.deepPurple,
-                  ),
-
-                  tarea(
-                    'Resolver ejercicios de cálculo',
-                    'Matemáticas',
-                    '10 nov',
-                    Colors.deepOrange,
-                  ),
-
-                  tarea(
-                    'Preparar presentación de Química',
-                    'Química',
-                    '12 nov',
-                    Colors.amber,
-                  ),
-
-                  tarea(
-                    'Revisar apuntes de Literatura',
-                    'Literatura',
-                    '13 nov',
-                    Colors.deepPurple,
+                  Expanded(
+                    child: TarjetaAcceso(
+                      titulo: "Notas",
+                      subtitulo: "Tus apuntes",
+                      icono: Icons.description_outlined,
+                      colorFondo: Color(0xFFFFEBE5),
+                      colorIcono: Color(0xFFFF784F),
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Falta conectar la pantalla Notas",
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
+
+            SizedBox(height: 12),
+
+            // SEGUNDA FILA DE TARJETAS
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TarjetaAcceso(
+                      titulo: "Calendario",
+                      subtitulo: "Ver fechas",
+                      icono: Icons.calendar_month,
+                      colorFondo: Color(0xFFD5F8E9),
+                      colorIcono: Color(0xFF25C99B),
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Falta conectar la pantalla Calendario",
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  SizedBox(width: 12),
+
+                  Expanded(
+                    child: TarjetaAcceso(
+                      titulo: "Nueva tarea",
+                      subtitulo: "Agregar rápido",
+                      icono: Icons.add,
+                      colorFondo: Color(0xFFFFF8C4),
+                      colorIcono: Color(0xFFFFB900),
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Falta conectar la pantalla Nueva tarea",
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 25),
+
+
+            SizedBox(height: 10),
+
+            // LISTA DE TAREAS
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+
+                  if (controlador.tareasVisibles.isEmpty)
+                    Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text(
+                        controlador.mostrarTodas
+                            ? "No hay tareas registradas"
+                            : "No tienes tareas pendientes",
+                      ),
+                    ),
+
+                  for (final tarea in controlador.tareasVisibles)
+                    TarjetaTarea(
+                      tarea: tarea,
+
+                      onCambiarEstado: () {
+                        setState(() {
+                          controlador.cambiarEstado(tarea);
+                        });
+                      },
+
+                      onEliminar: () {
+                        setState(() {
+                          controlador.eliminarTarea(tarea);
+                        });
+                      },
+                    ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 20),
           ],
         ),
-      ),
-    );
-  }
-
-  // DISEÑO DE UNA TARJETA
-  Widget tarjeta(
-    String titulo,
-    String subtitulo,
-    IconData icono,
-    Color fondo,
-    Color colorIcono,
-  ) {
-    return Expanded(
-      child: Container(
-        height: 140,
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: fondo,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: colorIcono,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icono,
-                color: Colors.white,
-              ),
-            ),
-
-            const Spacer(),
-
-            Text(
-              titulo,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 4),
-
-            Text(
-              subtitulo,
-              style: const TextStyle(
-                fontSize: 11,
-                color: Colors.black54,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // DISEÑO DE UNA TAREA PENDIENTE
-  Widget tarea(
-    String titulo,
-    String materia,
-    String fecha,
-    Color color,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.radio_button_unchecked,
-            color: color,
-            size: 23,
-          ),
-
-          const SizedBox(width: 10),
-
-          Container(
-            width: 3,
-            height: 35,
-            color: color,
-          ),
-
-          const SizedBox(width: 10),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  materia,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 8),
-
-          Text(
-            fecha,
-            style: const TextStyle(
-              fontSize: 10,
-              color: Colors.grey,
-            ),
-          ),
-        ],
       ),
     );
   }
