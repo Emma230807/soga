@@ -1,7 +1,14 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 class SelectorColores extends StatefulWidget {
-  const SelectorColores({super.key});
+  final Color colorSeleccionado;
+  final ValueChanged<Color> onSeleccionar;
+
+  const SelectorColores({
+    super.key,
+    required this.colorSeleccionado,
+    required this.onSeleccionar,
+  });
 
   @override
   State<SelectorColores> createState() => _SelectorColoresState();
@@ -17,21 +24,18 @@ class _SelectorColoresState extends State<SelectorColores> {
     Colors.yellow,
   ];
 
-  int? indiceSeleccionado;
-
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
       children: List.generate(colores.length, (index) {
-        bool seleccionado = indiceSeleccionado == index;
+        bool seleccionado =
+            widget.colorSeleccionado == colores[index];
 
         return InkWell(
           onTap: () {
-            setState(() {
-              indiceSeleccionado = index;
-            });
+            widget.onSeleccionar(colores[index]);
           },
           borderRadius: BorderRadius.circular(30),
           child: Container(
@@ -42,7 +46,9 @@ class _SelectorColoresState extends State<SelectorColores> {
               color: colores[index],
               shape: BoxShape.circle,
               border: Border.all(
-                color: seleccionado ? Colors.black : Colors.transparent,
+                color: seleccionado
+                    ? Colors.black
+                    : Colors.transparent,
                 width: 3,
               ),
             ),

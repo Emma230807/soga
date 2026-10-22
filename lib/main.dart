@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:soga/views/homeAlumno.dart';
 import 'package:soga/views/pantalla_tareas.dart';
-
 import 'package:soga/views/vista_splash.dart';
 
 void main() {
@@ -13,6 +12,9 @@ class MiAplicacion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: SplashScreen());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomeAlumno(),
+    );
   }
 }

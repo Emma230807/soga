@@ -1,5 +1,6 @@
-
 import 'package:flutter/material.dart';
+import 'package:soga/views/pantalla_tareas.dart';
+import 'package:soga/widgets/formulario_nueva_tarea.dart';
 
 import '../controllers/tarea_controller.dart';
 import '../widgets/tarjeta_acceso.dart';
@@ -13,9 +14,24 @@ class HomeAlumno extends StatefulWidget {
 }
 
 class _HomeAlumnoState extends State<HomeAlumno> {
-
   // CONTROLADOR DE TAREAS
   final TareasController controlador = TareasController();
+  void abrirPantallaTareas() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PantallaTareas()),
+    );
+  }
+  void mostrarFormularioTarea() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return const FormularioNuevaTarea();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +42,6 @@ class _HomeAlumnoState extends State<HomeAlumno> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             // ENCABEZADO MORADO
             Container(
               height: 250,
@@ -47,10 +62,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                   children: [
                     Text(
                       "Viernes, 16 de Octubre",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.white),
                     ),
 
                     SizedBox(height: 10),
@@ -68,10 +80,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
 
                     Text(
                       "Tienes ${controlador.pendientes} tareas pendientes",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.white),
                     ),
 
                     SizedBox(height: 25),
@@ -79,10 +88,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Progreso",
-                          style: TextStyle(color: Colors.white),
-                        ),
+                        Text("Progreso", style: TextStyle(color: Colors.white)),
 
                         Text(
                           "${controlador.completadas}/${controlador.tareas.length} completadas",
@@ -99,9 +105,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                         value: controlador.progreso,
                         minHeight: 8,
                         backgroundColor: Colors.white30,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.amber,
-                        ),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
                       ),
                     ),
                   ],
@@ -139,13 +143,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       colorFondo: Color(0xFFECE9FF),
                       colorIcono: Colors.deepPurple,
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "Falta conectar la pantalla Tareas",
-                            ),
-                          ),
-                        );
+                        abrirPantallaTareas();
                       },
                     ),
                   ),
@@ -162,9 +160,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              "Falta conectar la pantalla Notas",
-                            ),
+                            content: Text("Falta conectar la pantalla Notas"),
                           ),
                         );
                       },
@@ -210,13 +206,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       colorFondo: Color(0xFFFFF8C4),
                       colorIcono: Color(0xFFFFB900),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "Falta conectar la pantalla Nueva tarea",
-                            ),
-                          ),
-                        );
+                        mostrarFormularioTarea(); 
                       },
                     ),
                   ),
@@ -226,7 +216,6 @@ class _HomeAlumnoState extends State<HomeAlumno> {
 
             SizedBox(height: 25),
 
-
             SizedBox(height: 10),
 
             // LISTA DE TAREAS
@@ -234,7 +223,6 @@ class _HomeAlumnoState extends State<HomeAlumno> {
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-
                   if (controlador.tareasVisibles.isEmpty)
                     Padding(
                       padding: EdgeInsets.all(20),
@@ -272,3 +260,4 @@ class _HomeAlumnoState extends State<HomeAlumno> {
     );
   }
 }
+ 

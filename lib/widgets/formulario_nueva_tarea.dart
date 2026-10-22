@@ -17,6 +17,7 @@ class _FormularioNuevaTarea extends State<FormularioNuevaTarea> {
   String? materiaSeleccionada;
   DateTime? fechaSeleccionada;
   TimeOfDay? horaSeleccionada;
+  Color colorSelec = Colors.purple;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +148,14 @@ class _FormularioNuevaTarea extends State<FormularioNuevaTarea> {
 
               Text("Color", style: TextStyle(fontWeight: FontWeight.bold)),
 
-              SelectorColores(),
+              SelectorColores(
+                colorSeleccionado: colorSelec,
+                onSeleccionar: (color) {
+                  setState(() {
+                    colorSelec = color;
+                  });
+                },
+              ),
               SizedBox(height: 10),
 
               SizedBox(

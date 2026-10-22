@@ -1,19 +1,48 @@
+
 import 'package:flutter/material.dart';
-import 'package:soga/widgets/formulario_nueva_tarea.dart';
+import 'package:soga/controllers/notas_controller.dart';
 import 'package:soga/widgets/selectorcolores.dart';
 
 class PantallaAgregarnota extends StatefulWidget {
   const PantallaAgregarnota({super.key});
 
   @override
-  State<PantallaAgregarnota> createState() => _PantallaAgregarnotaState();
+  State<PantallaAgregarnota> createState() =>
+      _PantallaAgregarnotaState();
 }
 
 class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
-  final TextEditingController tituloController = TextEditingController();
-  final TextEditingController notaController = TextEditingController();
+  // CONTROLADORES DE TEXTO
+  final TextEditingController tituloController =
+      TextEditingController();
 
-  Color? colorSeleccionado;
+  final TextEditingController notaController =
+      TextEditingController();
+
+  // CONTROLADOR DE NOTAS
+  final NotasController controlador = NotasController();
+
+  // COLOR SELECCIONADO
+  Color colorSeleccionado = Colors.white;
+
+  // GUARDAR NOTA
+  void guardarNota() {
+    bool guardado = controlador.guardarNota(
+      tituloController.text,
+      notaController.text,
+      colorSeleccionado,
+    );
+
+    if (guardado) {
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Completa el título y la nota"),
+        ),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -35,19 +64,22 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
           icon: const Icon(Icons.arrow_back),
         ),
 
-        title: const Text('Notas'),
+        title: const Text("Notas"),
 
         backgroundColor: const Color.fromARGB(255, 236, 233, 252),
 
         actions: [
           TextButton(
             style: TextButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 214, 202, 252),
+              backgroundColor:
+                  const Color.fromARGB(255, 214, 202, 252),
             ),
-            onPressed: () => mostrarFormularioTarea(context),
+            onPressed: guardarNota,
             child: const Text(
               "Guardar",
-              style: TextStyle(color: Color.fromARGB(255, 124, 93, 210)),
+              style: TextStyle(
+                color: Color.fromARGB(255, 124, 93, 210),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -60,10 +92,19 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SelectorColores(),
+              // SELECTOR DE COLORES
+              SelectorColores(
+                colorSeleccionado: colorSeleccionado,
+                onSeleccionar: (color) {
+                  setState(() {
+                    colorSeleccionado = color;
+                  });
+                },
+              ),
 
-              Divider(height: 30),
+              const Divider(height: 30),
 
+              // TÍTULO
               TextField(
                 controller: tituloController,
                 style: const TextStyle(
@@ -76,10 +117,11 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
                 ),
               ),
 
-              Divider(),
+              const Divider(),
 
               const SizedBox(height: 10),
 
+              // CONTENIDO
               TextField(
                 controller: notaController,
                 style: const TextStyle(
@@ -99,15 +141,4 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
       ),
     );
   }
-}
-
-void mostrarFormularioTarea(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return const FormularioNuevaTarea();
-    },
-  );
 }

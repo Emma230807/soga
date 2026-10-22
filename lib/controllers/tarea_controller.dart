@@ -1,4 +1,3 @@
-
 import '../models/tarea.dart';
 import '../datasourses/tarea_data.dart';
 
@@ -32,9 +31,7 @@ class TareasController {
       return tareas;
     }
 
-    return tareas
-        .where((tarea) => !tarea.completada)
-        .toList();
+    return tareas.where((tarea) => !tarea.completada).toList();
   }
 
   // CAMBIAR ESTADO DE UNA TAREA
@@ -58,5 +55,17 @@ class TareasController {
   // MOSTRAR TODAS O SOLO PENDIENTES
   void cambiarVista() {
     mostrarTodas = !mostrarTodas;
+  }
+
+  List<Tarea> filtrarTareas(String texto, int filtro) {
+    return tareas.where((tarea) {
+      bool coincideFiltro = filtro == 0 ? !tarea.completada : tarea.completada;
+
+      bool coincideBusqueda = tarea.titulo.toLowerCase().contains(
+        texto.toLowerCase().trim(),
+      );
+
+      return coincideFiltro && coincideBusqueda;
+    }).toList();
   }
 }
