@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'views/homeAlumno.dart';
+import 'package:soga/views/pantalla_AgregarNota.dart';
+
+
 
 void main() {
   runApp(const MiAplicacion());
@@ -13,7 +15,9 @@ class MiAplicacion extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const HomeAlumno(),
+
+      home: PantallaAgregarnota(),
+
     );
   }
 }
