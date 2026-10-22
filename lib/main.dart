@@ -5,9 +5,9 @@ import 'package:soga/views/vista_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
-   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-    await initializeDateFormatting('es_MX');
+  await initializeDateFormatting('es_MX');
   runApp(const MiAplicacion());
 }
 
@@ -16,9 +16,6 @@ class MiAplicacion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomeAlumno(),
-    );
+    return MaterialApp(debugShowCheckedModeBanner: false, home: SplashScreen());
   }
 }
