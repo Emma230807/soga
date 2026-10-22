@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:soga/models/docente.dart';
+import 'package:soga/views/pantalla_login.dart';
 
 class EncabezadoDocente extends StatelessWidget {
-  const EncabezadoDocente({super.key});
+  final Docente docente;
+
+  const EncabezadoDocente({super.key, required this.docente});
+
+  String obtenerIniciales(String nombre) {
+    final palabras = nombre.trim().split(RegExp(r'\s+'));
+
+    if (palabras.first.isEmpty) {
+      return '';
+    }
+
+    if (palabras.length == 1) {
+      return palabras.first[0].toUpperCase();
+    }
+
+    return '${palabras.first[0]}${palabras.last[0]}'.toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +50,22 @@ class EncabezadoDocente extends StatelessWidget {
                     letterSpacing: 2,
                   ),
                 ),
+
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Login()),
+                      (route) => false,
+                    );
+                  },
                   icon: const Icon(Icons.logout, color: Colors.white, size: 20),
                 ),
               ],
             ),
+
             const SizedBox(height: 18),
+
             Row(
               children: [
                 Container(
@@ -50,35 +77,41 @@ class EncabezadoDocente extends StatelessWidget {
                     border: Border.all(color: Colors.white38),
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Text(
-                    'JP',
-                    style: TextStyle(
+                  child: Text(
+                    obtenerIniciales(docente.nombre),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+
                 const SizedBox(width: 14),
-                const Expanded(
+
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Prof. Javier Pérez',
-                        style: TextStyle(
+                        'Prof. ${docente.nombre}',
+                        style: const TextStyle(
                           fontSize: 18,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
+
+                      const SizedBox(height: 4),
+
+                      const Text(
                         'Matemáticas y Física · Secundaria',
                         style: TextStyle(color: Colors.white70, fontSize: 11),
                       ),
-                      SizedBox(height: 8),
-                      Row(
+
+                      const SizedBox(height: 8),
+
+                      const Row(
                         children: [
                           CircleAvatar(
                             radius: 3,

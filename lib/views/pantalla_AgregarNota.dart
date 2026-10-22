@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/widgets/formulario_nueva_tarea.dart';
 import 'package:soga/widgets/selectorcolores.dart';
 
 class PantallaAgregarnota extends StatefulWidget {
@@ -43,9 +44,7 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
             style: TextButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 214, 202, 252),
             ),
-            onPressed: () {
-              // Aquí irá la función para guardar la nota.
-            },
+            onPressed: () => mostrarFormularioTarea(context),
             child: const Text(
               "Guardar",
               style: TextStyle(color: Color.fromARGB(255, 124, 93, 210)),
@@ -100,4 +99,15 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
       ),
     );
   }
+}
+
+void mostrarFormularioTarea(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return const FormularioNuevaTarea();
+    },
+  );
 }
