@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/views/homeAlumno.dart';
 import 'package:soga/views/home_administrador.dart';
 import 'package:soga/views/pantalla_AgregarNota.dart';
 import 'package:soga/widgets/campo_login.dart';
@@ -63,7 +64,7 @@ class _FormularioLoginState extends State<FormularioLogin> {
       case RolUsuario.alumno:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const PantallaAgregarnota()),
+          MaterialPageRoute(builder: (context) => const HomeAlumno()),
         );
         break;
 
