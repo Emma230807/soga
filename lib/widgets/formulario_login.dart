@@ -25,13 +25,20 @@ class _FormularioLoginState extends State<FormularioLogin> {
   }
 
   // MÉTODO PARA INICIAR SESIÓN
-  void iniciarSesion() {
+  Future<void> iniciarSesion() async {
     String correo = correoController.text.trim();
     String contrasena = contrasenaController.text;
 
     // VALIDAR CAMPOS VACÍOS
     if (correo.isEmpty || contrasena.isEmpty) {
-      mostrarMensaje('Completa todos los campos');
+      await mostrarRegistroExitoso(
+        context,
+        "Faltan datos",
+        Icons.cancel,
+        Colors.red,
+      );
+
+      if (!context.mounted) return;
       return;
     }
 
@@ -49,7 +56,14 @@ class _FormularioLoginState extends State<FormularioLogin> {
       // DOCENTE
       case RolUsuario.docente:
         final docente = DatosTemporales.validarDocente(correo, contrasena);
+        await mostrarRegistroExitoso(
+          context,
+          "Registro exitoso",
+          Icons.check_circle,
+          Colors.green,
+        );
 
+        if (!context.mounted) return;
         if (docente != null) {
           Navigator.pushReplacement(
             context,
@@ -62,6 +76,15 @@ class _FormularioLoginState extends State<FormularioLogin> {
 
       // ALUMNO OSWA, aqui va el apartado de alumno
       case RolUsuario.alumno:
+        await mostrarRegistroExitoso(
+          context,
+          "Registro exitoso",
+          Icons.check_circle,
+          Colors.green,
+        );
+
+        if (!context.mounted) return;
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeAlumno()),
@@ -70,11 +93,53 @@ class _FormularioLoginState extends State<FormularioLogin> {
 
       // ADMINISTRADOR
       case RolUsuario.administrador:
+        await mostrarRegistroExitoso(
+          context,
+          "Registro exitoso",
+          Icons.check_circle,
+          Colors.green,
+        );
+
+        if (!context.mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeAdministrador()),
         );
         break;
+    }
+  }
+
+  Future<void> mostrarRegistroExitoso(
+    BuildContext context,
+    String mensaje,
+    IconData icono,
+    Color color,
+  ) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icono, color: color, size: 60),
+              SizedBox(height: 15),
+              Text(
+                mensaje,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    await Future.delayed(Duration(seconds: 1));
+
+    if (context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
     }
   }
 
