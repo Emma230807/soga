@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soga/views/pantalla_calendario.dart';
+import 'package:soga/views/pantalla_notas.dart';
 import 'package:soga/views/pantalla_tareas.dart';
 import 'package:soga/widgets/formulario_nueva_tarea.dart';
 
@@ -37,6 +38,12 @@ class _HomeAlumnoState extends State<HomeAlumno> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CalendarScreen()),
+    );
+  }
+  void abrirPantallaNotas(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PantallaNotas()),
     );
   }
 
@@ -165,11 +172,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       colorFondo: Color(0xFFFFEBE5),
                       colorIcono: Color(0xFFFF784F),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Falta conectar la pantalla Notas"),
-                          ),
-                        );
+                       abrirPantallaNotas();
                       },
                     ),
                   ),

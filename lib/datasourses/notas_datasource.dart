@@ -1,51 +1,45 @@
-
+import 'package:flutter/material.dart';
 import 'package:soga/models/nota.dart';
 
 class NotasDataSource {
+  static final List<Nota> _notas = [
+    Nota(
+      id: 1,
+      titulo: "Programación",
+      contenido: "Repasar los widgets de Flutter para el examen.",
+      color: const Color(0xFFFFF4B8),
+      fechaCreacion: DateTime(2026, 10, 20),
+    ),
+    Nota(
+      id: 2,
+      titulo: "Base de datos",
+      contenido: "Terminar el diagrama entidad-relación.",
+      color: const Color(0xFFD5E8FF),
+      fechaCreacion: DateTime(2026, 10, 21),
+    ),
+    Nota(
+      id: 3,
+      titulo: "Matemáticas",
+      contenido: "Estudiar los ejercicios de cálculo.",
+      color: const Color(0xFFFAD5E4),
+      fechaCreacion: DateTime(2026, 10, 22),
+    ),
+  ];
 
-  // LISTA DONDE SE ALMACENAN LAS NOTAS
-  static final List<Nota> _notas = [];
+  static int _siguienteId = 4;
 
-  // GENERADOR DE IDENTIFICADORES
-  static int _siguienteId = 1;
-
+  // GENERAR ID
   int generarId() {
     return _siguienteId++;
   }
 
-  // AGREGAR UNA NOTA
+  // AGREGAR NOTA
   void agregarNota(Nota nota) {
     _notas.add(nota);
   }
 
-  // OBTENER TODAS LAS NOTAS
+  // OBTENER NOTAS
   List<Nota> obtenerNotas() {
     return List.from(_notas);
-  }
-
-  // BUSCAR UNA NOTA POR ID
-  Nota? buscarNota(int id) {
-    for (final nota in _notas) {
-      if (nota.id == id) {
-        return nota;
-      }
-    }
-    return null;
-  }
-
-  // ELIMINAR UNA NOTA
-  void eliminarNota(int id) {
-    _notas.removeWhere((nota) => nota.id == id);
-  }
-
-  // ACTUALIZAR UNA NOTA
-  void actualizarNota(Nota notaActualizada) {
-    int posicion = _notas.indexWhere(
-      (nota) => nota.id == notaActualizada.id,
-    );
-
-    if (posicion != -1) {
-      _notas[posicion] = notaActualizada;
-    }
   }
 }
