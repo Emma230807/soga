@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/views/agregar_docentes.dart';
 
 import '../datasourses/datos_temporales.dart';
 import 'pantalla_login.dart';
@@ -18,7 +19,12 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
       (route) => false,
     );
   }
-
+  void abrirPantallaDocente(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PantallaAgregarDocente()),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     final docentes = DatosTemporales.docentes;
@@ -163,13 +169,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                   height: 50,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Falta conectar el registro de docentes',
-                          ),
-                        ),
-                      );
+                      abrirPantallaDocente();
                     },
 
                     icon: const Icon(Icons.add),

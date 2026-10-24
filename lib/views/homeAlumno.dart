@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soga/views/pantalla_calendario.dart';
+import 'package:soga/views/pantalla_login.dart';
 import 'package:soga/views/pantalla_notas.dart';
 import 'package:soga/views/pantalla_tareas.dart';
 import 'package:soga/widgets/formulario_nueva_tarea.dart';
@@ -24,6 +25,14 @@ class _HomeAlumnoState extends State<HomeAlumno> {
       MaterialPageRoute(builder: (context) => PantallaTareas()),
     );
   }
+  void abrirPantallaLogin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Login()),
+    );
+  }
+  
+
   void mostrarFormularioTarea() {
     showModalBottomSheet(
       context: context,
@@ -34,13 +43,15 @@ class _HomeAlumnoState extends State<HomeAlumno> {
       },
     );
   }
-    void abrirPantallaCalendario() {
+
+  void abrirPantallaCalendario() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CalendarScreen()),
     );
   }
-  void abrirPantallaNotas(){
+
+  void abrirPantallaNotas() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PantallaNotas()),
@@ -50,6 +61,23 @@ class _HomeAlumnoState extends State<HomeAlumno> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.deepPurple,
+        leading: Container(
+          margin: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.deepPurple,
+          ),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back),
+            color: Colors.white,
+            onPressed: () {
+              abrirPantallaLogin();
+            },
+          ),
+        ),
+      ),
       backgroundColor: Color(0xFFF8F7FC),
 
       body: SingleChildScrollView(
@@ -172,7 +200,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       colorFondo: Color(0xFFFFEBE5),
                       colorIcono: Color(0xFFFF784F),
                       onTap: () {
-                       abrirPantallaNotas();
+                        abrirPantallaNotas();
                       },
                     ),
                   ),
@@ -195,7 +223,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       colorFondo: Color(0xFFD5F8E9),
                       colorIcono: Color(0xFF25C99B),
                       onTap: () {
-                       abrirPantallaCalendario();
+                        abrirPantallaCalendario();
                       },
                     ),
                   ),
@@ -210,7 +238,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       colorFondo: Color(0xFFFFF8C4),
                       colorIcono: Color(0xFFFFB900),
                       onTap: () {
-                        mostrarFormularioTarea(); 
+                        mostrarFormularioTarea();
                       },
                     ),
                   ),
@@ -264,4 +292,3 @@ class _HomeAlumnoState extends State<HomeAlumno> {
     );
   }
 }
- 
