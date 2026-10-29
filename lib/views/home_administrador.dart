@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soga/views/agregar_docentes.dart';
+import 'package:soga/views/agregar_materia.dart';
 
 import '../datasourses/datos_temporales.dart';
 import 'pantalla_login.dart';
@@ -19,12 +20,30 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
       (route) => false,
     );
   }
-  void abrirPantallaDocente(){
+
+  void abrirPantallaDocente() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PantallaAgregarDocente()),
     );
   }
+
+  /*
+  void abrirPantallaFormularioGrupo(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ),
+    );
+  }
+  */
+
+  void abrirPantallaFormularioMteria() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PantallaAgregarMateria()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final docentes = DatosTemporales.docentes;
@@ -175,6 +194,50 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                     icon: const Icon(Icons.add),
 
                     label: const Text('Agregar docente'),
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7043FF),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // BOTÓN AGREGAR Grupo
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      abrirPantallaDocente();
+                    },
+
+                    icon: const Icon(Icons.add),
+
+                    label: const Text('Agregar grupo'),
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7043FF),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // BOTÓN AGREGAR Materia
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      abrirPantallaFormularioMteria();
+                    },
+
+                    icon: const Icon(Icons.add),
+
+                    label: const Text('Agregar materia'),
 
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7043FF),
