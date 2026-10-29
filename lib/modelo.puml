@@ -1,0 +1,159 @@
+
+@startuml
+title Modelo de Dominio - SOGA
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' =========================
+' USUARIO
+' =========================
+
+class Usuario {
+  idUsuario : INT
+  tipoUsuario : ENUM
+  nombreCompleto : VARCHAR(100)
+  correo : VARCHAR(100)
+  contraseña : VARCHAR(255)
+}
+
+class Alumno {
+  matricula : VARCHAR(10)
+  cveInscripcion : INT (Puede ser null)
+  perteneceAGrupo : BOOLEAN
+}
+
+class Profesor {
+  usuario : VARCHAR(20)
+  numeroEmpleadoProf : VARCHAR(10)
+}
+
+class Administrador {
+  numeroEmpleado : VARCHAR(10)
+}
+
+class Materia {
+  idMateria : INT
+  nombre : VARCHAR(100)
+}
+
+class Inscripcion{
+  cveInscripcion : INT
+  idGrupo : VARCHAR(10)
+  idMateria : INT
+  idUsuario : INT
+}
+
+' =========================
+' GRUPO, NOTA Y TAREA
+' =========================
+
+class Grupo {
+  idGrupo  : VARCHAR(10)
+  nombreGrupo : VARCHAR(30)
+}
+
+class Nota {
+  idNota : INT
+  contenido : TEXT
+  fechaCreacion : DATETIME
+  titulo : VARCHAR(150)
+  color : VARCHAR(50)
+  matricula : VARCHAR(10)
+}
+
+class Tarea {
+  idTarea : INT
+  descripcion : TEXT
+  prioridad : ENUM
+  fecha : DATE
+  titulo : VARCHAR(150)
+  idMateria : INT
+  color : VARCHAR(20)
+  matricula : VARCHAR(10)
+}
+
+class Asesoria {
+  idAsesoria : INT
+  fecha : DATE
+  hora : TIME
+  numeroEmpleadoProf : VARCHAR(10)
+  matricula : VARCHAR(10)
+}
+
+' =========================
+' Puntajes y mensajes
+' =========================
+
+class Actividades {
+  idUsuario : INT
+  idActividad : INT
+  actividad : VARCHAR(200)
+}
+
+class Puntajes {
+  idActividad : INT
+  idUsuario : INT 
+  estado : BOOLEAN
+}
+
+class Notificacion {
+  idNotificacion : INT
+  numeroEmpleadoProf : VARCHAR(10)
+  matricula : VARCHAR(10)
+  mensaje : VARCHAR(300)
+}
+
+' =========================
+' ENUMERACIONES
+' =========================
+
+enum TipoUsuario {
+  PROFESOR
+  ALUMNO
+  ADMINISTRADOR
+}
+
+enum Prioridad {
+  ALTA
+  MEDIA
+  BAJA
+}
+
+' =========================
+' HERENCIA
+' =========================
+
+Usuario <|-right- Alumno
+Usuario <|-down- Profesor
+Usuario <|-up- Administrador
+
+' =========================
+' NOTAS DE ENUMERACIONES
+' =========================
+
+Usuario .left. TipoUsuario
+Tarea .up. Prioridad
+
+Tarea -left- Alumno
+Tarea -down- Materia
+Nota -down- Alumno
+
+Profesor -right- Inscripcion
+Grupo -up- Inscripcion
+Materia -left- Inscripcion
+Alumno |o-- Inscripcion
+
+Profesor -- Notificacion
+Alumno -- Notificacion
+
+Profesor -left- Actividades
+Puntajes -down- Actividades
+
+Puntajes -[hidden]up- TipoUsuario
+Puntajes -[norank]- Alumno
+
+Alumno -[norank]- Asesoria
+Asesoria -[norank]- Profesor
+
+@enduml
