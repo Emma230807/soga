@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soga/views/agregar_docentes.dart';
+import 'package:soga/views/agregar_inscripcion.dart';
 import 'package:soga/views/agregar_materia.dart';
 
 import '../datasourses/datos_temporales.dart';
@@ -41,6 +42,13 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PantallaAgregarMateria()),
+    );
+  }
+
+  void abrirPantallaFormularioInscripcion() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PantallaAgregarInscripcion()),
     );
   }
 
@@ -238,6 +246,28 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                     icon: const Icon(Icons.add),
 
                     label: const Text('Agregar materia'),
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7043FF),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // BOTÓN AGREGAR Inscripcion
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      abrirPantallaFormularioInscripcion();
+                    },
+
+                    icon: const Icon(Icons.add),
+
+                    label: const Text('Agregar inscripcion'),
 
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7043FF),

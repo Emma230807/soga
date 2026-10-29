@@ -1,4 +1,5 @@
 import 'package:soga/models/docente.dart';
+import 'package:soga/models/grupo.dart';
 import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/models/vinculacion_docente_alumno.dart';
 
@@ -20,6 +21,11 @@ class DatosTemporales {
       correo: 'maria@gmail.com',
       contrasena: '123456',
     ),
+  ];
+
+  static final List<Grupo> grupos = [
+    Grupo(idGrupo: "GTID243", nombreGrupo: 'Desarrollo de Software 3'),
+    Grupo(idGrupo: "GTID242", nombreGrupo: 'Desarrollo de Software 2'),
   ];
 
   // ==========================================
