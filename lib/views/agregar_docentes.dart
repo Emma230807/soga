@@ -138,6 +138,31 @@ class PantallaAgregarDocente extends StatelessWidget {
 
                         const SizedBox(height: 20),
 
+                        // Usuario
+                        const Text(
+                          'Usuario',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Ej. Maria L',
+                            prefixIcon: const Icon(
+                              Icons.person_outline,
+                              color: Colors.deepPurple,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
                         // CORREO
                         const Text(
                           'Correo electrónico',
@@ -161,11 +186,38 @@ class PantallaAgregarDocente extends StatelessWidget {
                             ),
                           ),
                         ),
+                         const SizedBox(height: 20),
+                         // Contraseña
+                        const Text(
+                          'Contraseña',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Ej. 123456',
+                            prefixIcon: const Icon(
+                              Icons.lock_reset_outlined,
+                              color: Colors.deepPurple,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+
                       ],
                     ),
                   ),
+                   
+                      
 
                   const SizedBox(height: 30),
+
 
                   // BOTÓN GUARDAR - SIN FUNCIONALIDAD
                   SizedBox(
