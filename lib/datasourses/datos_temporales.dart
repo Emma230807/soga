@@ -5,8 +5,82 @@ import 'package:soga/models/grupo.dart';
 import 'package:soga/models/tarea.dart';
 import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/models/vinculacion_docente_alumno.dart';
+import 'package:soga/models/asesoria.dart';
 
 class DatosTemporales {
+  static List<Asesoria> asesorias = [
+    Asesoria(
+      idAsesoria: 1,
+      fecha: DateTime(2026, 10, 30),
+      hora: const TimeOfDay(hour: 9, minute: 0),
+      nombreCompletoProfesor: "Ema Ramírez",
+      nombreCompletoAlumno: "Carlos López",
+    ),
+    Asesoria(
+      idAsesoria: 2,
+      fecha: DateTime(2026, 10, 30),
+      hora: const TimeOfDay(hour: 11, minute: 30),
+      nombreCompletoProfesor: "María González",
+      nombreCompletoAlumno: "Ana Martínez",
+    ),
+    Asesoria(
+      idAsesoria: 3,
+      fecha: DateTime(2026, 11, 2),
+      hora: const TimeOfDay(hour: 10, minute: 0),
+      nombreCompletoProfesor: "Ema Ramírez",
+      nombreCompletoAlumno: "Luis Hernández",
+    ),
+    Asesoria(
+      idAsesoria: 4,
+      fecha: DateTime(2026, 11, 3),
+      hora: const TimeOfDay(hour: 12, minute: 0),
+      nombreCompletoProfesor: "José Pérez",
+      nombreCompletoAlumno: "Carlos López",
+    ),
+    Asesoria(
+      idAsesoria: 5,
+      fecha: DateTime(2026, 11, 4),
+      hora: const TimeOfDay(hour: 8, minute: 30),
+      nombreCompletoProfesor: "María González",
+      nombreCompletoAlumno: "Sofía Torres",
+    ),
+    Asesoria(
+      idAsesoria: 6,
+      fecha: DateTime(2026, 10, 20),
+      hora: const TimeOfDay(hour: 9, minute: 30),
+      nombreCompletoProfesor: "Ema Ramírez",
+      nombreCompletoAlumno: "Ana Martínez",
+    ),
+    Asesoria(
+      idAsesoria: 7,
+      fecha: DateTime(2026, 10, 22),
+      hora: const TimeOfDay(hour: 13, minute: 0),
+      nombreCompletoProfesor: "José Pérez",
+      nombreCompletoAlumno: "Diego Sánchez",
+    ),
+    Asesoria(
+      idAsesoria: 8,
+      fecha: DateTime(2026, 10, 25),
+      hora: const TimeOfDay(hour: 10, minute: 30),
+      nombreCompletoProfesor: "María González",
+      nombreCompletoAlumno: "Luis Hernández",
+    ),
+    Asesoria(
+      idAsesoria: 9,
+      fecha: DateTime(2026, 11, 5),
+      hora: const TimeOfDay(hour: 14, minute: 0),
+      nombreCompletoProfesor: "Ema Ramírez",
+      nombreCompletoAlumno: "Sofía Torres",
+    ),
+    Asesoria(
+      idAsesoria: 10,
+      fecha: DateTime(2026, 11, 6),
+      hora: const TimeOfDay(hour: 11, minute: 0),
+      nombreCompletoProfesor: "José Pérez",
+      nombreCompletoAlumno: "Diego Sánchez",
+    ),
+  ];
+
   // ==========================================
   // LISTA DE DOCENTES
   // ==========================================

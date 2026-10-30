@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/views/historial_asesorias.dart';
 import 'package:soga/views/registro_asesorias.dart';
 
 import '../models/docente.dart';
@@ -27,6 +28,13 @@ class _HomeDocenteState extends State<HomeDocente> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => RegistroAsesorias()),
+    );
+  }
+
+  void abrirHistorialAsesorias() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HistorialAsesorias()),
     );
   }
 
@@ -96,6 +104,7 @@ class _HomeDocenteState extends State<HomeDocente> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 10),
 
                   SizedBox(
@@ -107,6 +116,31 @@ class _HomeDocenteState extends State<HomeDocente> {
                       icon: const Icon(Icons.person_add),
 
                       label: const Text('Registrar asesoria'),
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7648FF),
+                        foregroundColor: Colors.white,
+
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  SizedBox(
+                    width: double.infinity,
+
+                    child: ElevatedButton.icon(
+                      onPressed: abrirHistorialAsesorias,
+
+                      icon: const Icon(Icons.person_add),
+
+                      label: const Text('Historial de asesorias'),
 
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7648FF),
