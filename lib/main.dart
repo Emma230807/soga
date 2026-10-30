@@ -4,6 +4,7 @@ import 'package:soga/views/altaGrupo.dart';
 import 'package:soga/views/carga_administradores.dart';
 import 'package:soga/views/homeAlumno.dart';
 import 'package:soga/views/pantalla_notas.dart';
+import 'package:soga/views/pantalla_notificaciones.dart';
 import 'package:soga/views/pantalla_tareas.dart';
 import 'package:soga/views/registro_usuario.dart';
 import 'package:soga/views/vista_splash.dart';
