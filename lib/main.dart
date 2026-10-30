@@ -10,7 +10,6 @@ import 'package:soga/views/registro_usuario.dart';
 import 'package:soga/views/vista_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -25,7 +24,7 @@ class MiAplicacion extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const HomeAlumno(),
+      home: const SplashScreen(),
     );
   }
 }

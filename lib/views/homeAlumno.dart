@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:soga/views/pantalla_calendario.dart';
 import 'package:soga/views/pantalla_login.dart';
 import 'package:soga/views/pantalla_notas.dart';
+import 'package:soga/views/pantalla_notificaciones.dart';
 import 'package:soga/views/pantalla_tareas.dart';
 import 'package:soga/widgets/formulario_nueva_tarea.dart';
 import 'package:soga/widgets/widget_asesoria.dart';
@@ -41,7 +42,8 @@ class _HomeAlumnoState extends State<HomeAlumno> {
       },
     );
   }
-    void mostrarFormularioAsesoria() {
+
+  void mostrarFormularioAsesoria() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -66,6 +68,13 @@ class _HomeAlumnoState extends State<HomeAlumno> {
     );
   }
 
+  void abrirPantallaNotificaciones() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PantallaNotificaciones()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,7 +96,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: abrirPantallaNotificaciones,
             icon: Icon(Icons.notifications),
             color: Colors.white,
           ),
