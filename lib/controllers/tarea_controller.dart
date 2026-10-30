@@ -39,11 +39,7 @@ class TareasController {
     int indice = tareas.indexOf(tarea);
 
     if (indice != -1) {
-      tareas[indice] = Tarea(
-        titulo: tarea.titulo,
-        fechaEntrega: tarea.fechaEntrega,
-        completada: !tarea.completada,
-      );
+      tareas[indice].completada = !tarea.completada;
     }
   }
 

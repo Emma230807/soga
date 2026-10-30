@@ -67,10 +67,13 @@ class Tarea {
   descripcion : TEXT
   prioridad : ENUM
   fecha : DATE
+  fechaDeEntrega : DATE
   titulo : VARCHAR(150)
   idMateria : INT
   color : VARCHAR(20)
   matricula : VARCHAR(10)
+  completa : BOOLEAN
+  alumno : VARCHAR(50)
 }
 
 class Asesoria {

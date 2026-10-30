@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soga/views/historial_asesorias.dart';
+import 'package:soga/views/puntuacion_alumnos.dart';
 import 'package:soga/views/registro_asesorias.dart';
 
 import '../models/docente.dart';
@@ -35,6 +36,13 @@ class _HomeDocenteState extends State<HomeDocente> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => HistorialAsesorias()),
+    );
+  }
+
+  void abrirPuntuacionAlumnos() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PuntuacionAlumnos()),
     );
   }
 
@@ -184,6 +192,43 @@ class _HomeDocenteState extends State<HomeDocente> {
                       icon: const Icon(Icons.person_add),
 
                       label: const Text('Agregar alumno'),
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7648FF),
+                        foregroundColor: Colors.white,
+
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  const Text(
+                    'Puntaje',
+                    style: TextStyle(
+                      fontSize: 10,
+                      letterSpacing: 1.3,
+                      color: Color(0xFF858099),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  SizedBox(
+                    width: double.infinity,
+
+                    child: ElevatedButton.icon(
+                      onPressed: abrirPuntuacionAlumnos,
+
+                      icon: const Icon(Icons.person_add),
+
+                      label: const Text('Puntages de alumnos'),
 
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7648FF),
