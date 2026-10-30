@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/datasourses/datos_temporales.dart';
 
 class SelectorMateria extends StatelessWidget {
   final String? materiaSeleccionada;
@@ -12,13 +13,7 @@ class SelectorMateria extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final materias = [
-      'Matemáticas',
-      'Español',
-      'Inglés',
-      'Programación',
-      'Base de datos',
-    ];
+    final materias = DatosTemporales.materias;
 
     return DropdownButtonFormField<String>(
       initialValue: materiaSeleccionada,

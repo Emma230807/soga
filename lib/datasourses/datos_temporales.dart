@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:soga/models/alumno.dart';
 import 'package:soga/models/docente.dart';
 import 'package:soga/models/grupo.dart';
+import 'package:soga/models/tarea.dart';
 import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/models/vinculacion_docente_alumno.dart';
 
@@ -7,6 +10,14 @@ class DatosTemporales {
   // ==========================================
   // LISTA DE DOCENTES
   // ==========================================
+
+  static final materias = [
+    'Matemáticas',
+    'Español',
+    'Inglés',
+    'Programación',
+    'Base de datos',
+  ];
 
   static final List<Docente> docentes = [
     Docente(
@@ -31,6 +42,95 @@ class DatosTemporales {
   // ==========================================
   // CUENTAS DE ALUMNOS Y ADMINISTRADORES
   // ==========================================
+
+  // ALUMNOS ORGANIZADOS POR GRUPO
+  static const Map<String, List<Alumno>> alumnosPorGrupo = {
+    '3° A · Matemáticas': [
+      Alumno(
+        codigoAlumno: 'ALU-0002',
+        nombre: 'Ana Martínez',
+        iniciales: 'AM',
+        color: Color(0xFF7648FF),
+        tareas: [
+          Tarea(titulo: 'Ejercicios de álgebra', fechaEntrega: '20 de octubre'),
+          Tarea(
+            titulo: 'Problemas de ecuaciones',
+            fechaEntrega: '23 de octubre',
+          ),
+        ],
+      ),
+      Alumno(
+        codigoAlumno: 'ALU-0003',
+        nombre: 'Diego Hernández',
+        iniciales: 'DH',
+        color: Color(0xFFFF754F),
+        tareas: [
+          Tarea(
+            titulo: 'Operaciones con fracciones',
+            fechaEntrega: '21 de octubre',
+          ),
+        ],
+      ),
+      Alumno(
+        codigoAlumno: 'ALU-0004',
+        nombre: 'Lucía Torres',
+        iniciales: 'LT',
+        color: Color(0xFF31CFA1),
+        tareas: [
+          Tarea(titulo: 'Ecuaciones lineales', fechaEntrega: '20 de octubre'),
+          Tarea(titulo: 'Geometría básica', fechaEntrega: '22 de octubre'),
+          Tarea(titulo: 'Problemas matemáticos', fechaEntrega: '25 de octubre'),
+        ],
+      ),
+    ],
+
+    '3° B · Matemáticas': [
+      Alumno(
+        codigoAlumno: 'ALU-0005',
+        nombre: 'Carlos López',
+        iniciales: 'CL',
+        color: Color(0xFF7648FF),
+        tareas: [
+          Tarea(
+            titulo: 'Multiplicación de polinomios',
+            fechaEntrega: '24 de octubre',
+          ),
+        ],
+      ),
+      Alumno(
+        codigoAlumno: 'ALU-0006',
+        nombre: 'Sofía Ramírez',
+        iniciales: 'SR',
+        color: Color(0xFF31CFA1),
+        tareas: [
+          Tarea(titulo: 'Factorización', fechaEntrega: '25 de octubre'),
+          Tarea(titulo: 'Ecuaciones', fechaEntrega: '26 de octubre'),
+        ],
+      ),
+    ],
+
+    '2° A · Física': [
+      Alumno(
+        codigoAlumno: 'ALU-0007',
+        nombre: 'Pedro Sánchez',
+        iniciales: 'PS',
+        color: Color(0xFFFF754F),
+        tareas: [
+          Tarea(titulo: 'Leyes de Newton', fechaEntrega: '27 de octubre'),
+        ],
+      ),
+      Alumno(
+        codigoAlumno: 'ALU-0008',
+        nombre: 'Mariana Gómez',
+        iniciales: 'MG',
+        color: Color(0xFF7648FF),
+        tareas: [
+          Tarea(titulo: 'Movimiento rectilíneo', fechaEntrega: '28 de octubre'),
+          Tarea(titulo: 'Fuerza y masa', fechaEntrega: '29 de octubre'),
+        ],
+      ),
+    ],
+  };
 
   static final List<Map<String, dynamic>> otrasCuentas = [
     {

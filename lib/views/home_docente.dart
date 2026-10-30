@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/views/registro_asesorias.dart';
 
 import '../models/docente.dart';
 import '../datasourses/datos_docente.dart';
@@ -21,6 +22,13 @@ class HomeDocente extends StatefulWidget {
 class _HomeDocenteState extends State<HomeDocente> {
   String grupoSeleccionado = gruposDocente.first;
   int? alumnoAbierto;
+
+  void abrirRegistroAsesorias() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RegistroAsesorias()),
+    );
+  }
 
   // ABRIR FORMULARIO PARA AGREGAR ALUMNO
   Future<void> abrirFormularioVinculacion() async {
@@ -79,6 +87,42 @@ class _HomeDocenteState extends State<HomeDocente> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Text(
+                    'ASESORIAS',
+                    style: TextStyle(
+                      fontSize: 10,
+                      letterSpacing: 1.3,
+                      color: Color(0xFF858099),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  SizedBox(
+                    width: double.infinity,
+
+                    child: ElevatedButton.icon(
+                      onPressed: abrirRegistroAsesorias,
+
+                      icon: const Icon(Icons.person_add),
+
+                      label: const Text('Registrar asesoria'),
+
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7648FF),
+                        foregroundColor: Colors.white,
+
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
                   // SELECTOR DE GRUPOS
                   SelectorGrupo(
                     grupos: gruposDocente,
