@@ -77,6 +77,12 @@ class _HomeAlumnoState extends State<HomeAlumno> {
             },
           ),
         ),
+        actions: [
+          IconButton(onPressed: (){
+
+          }, icon: Icon(Icons.notifications),
+          color: Colors.white,)
+        ],
       ),
       backgroundColor: Color(0xFFF8F7FC),
 
