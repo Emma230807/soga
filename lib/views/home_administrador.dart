@@ -3,6 +3,7 @@ import 'package:soga/views/agregar_docentes.dart';
 import 'package:soga/views/agregar_inscripcion.dart';
 import 'package:soga/views/agregar_materia.dart';
 import 'package:soga/views/altaGrupo.dart';
+import 'package:soga/views/pantalla_formulario_admin.dart';
 
 import '../datasourses/datos_temporales.dart';
 import 'pantalla_login.dart';
@@ -51,10 +52,15 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
     );
   }
 
+  void abrirPantallaFormularioAdmin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PantallaFormularioAdmin()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final docentes = DatosTemporales.docentes;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
 
@@ -100,7 +106,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                   const SizedBox(height: 20),
 
                   const Text(
-                    'Administración de docentes',
+                    'Administración',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 23,
@@ -111,7 +117,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                   const SizedBox(height: 8),
 
                   const Text(
-                    'Consulta y administra los docentes del sistema.',
+                    'Consulta y administra los datos del sistema.',
                     style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                 ],
@@ -124,71 +130,6 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Docentes registrados',
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    Text(
-                      '${docentes.length}',
-                      style: const TextStyle(
-                        fontSize: 17,
-                        color: Color(0xFF7043FF),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 15),
-
-                // LISTA DE DOCENTES
-                if (docentes.isEmpty)
-                  const Center(child: Text('No hay docentes registrados'))
-                else
-                  ...docentes.map(
-                    (docente) => Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Color(0xFF7043FF),
-                          child: Icon(Icons.person, color: Colors.white),
-                        ),
-
-                        title: Text(
-                          docente.nombre,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-
-                        subtitle: Text(docente.correo),
-
-                        trailing: IconButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Falta conectar la edición de docentes',
-                                ),
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.edit,
-                            color: Color(0xFF7043FF),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                const SizedBox(height: 20),
-
                 // BOTÓN AGREGAR DOCENTE
                 SizedBox(
                   width: double.infinity,
@@ -267,6 +208,28 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                     icon: const Icon(Icons.add),
 
                     label: const Text('Agregar inscripcion'),
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7043FF),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // BOTÓN AGREGAR Inscripcion
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      abrirPantallaFormularioAdmin();
+                    },
+
+                    icon: const Icon(Icons.add),
+
+                    label: const Text('Agregar administrador'),
 
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7043FF),
