@@ -1,7 +1,10 @@
+
 import 'package:flutter/material.dart';
+import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/views/historial_asesorias.dart';
 import 'package:soga/views/puntuacion_alumnos.dart';
 import 'package:soga/views/registro_asesorias.dart';
+import 'package:soga/views/perfil.dart';
 
 import '../models/docente.dart';
 import '../datasourses/datos_docente.dart';
@@ -14,8 +17,13 @@ import '../widgets/formulario_vinculacion.dart';
 
 class HomeDocente extends StatefulWidget {
   final Docente docente;
+  final UsuarioSesion usuario;
 
-  const HomeDocente({super.key, required this.docente});
+  const HomeDocente({
+    super.key,
+    required this.docente,
+    required this.usuario,
+  });
 
   @override
   State<HomeDocente> createState() => _HomeDocenteState();
@@ -25,24 +33,45 @@ class _HomeDocenteState extends State<HomeDocente> {
   String grupoSeleccionado = gruposDocente.first;
   int? alumnoAbierto;
 
+  // ABRIR PERFIL
+  void abrirPerfil() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantallaPerfil(
+          usuario: widget.usuario,
+        ),
+      ),
+    );
+  }
+
+  // ABRIR REGISTRO DE ASESORÍAS
   void abrirRegistroAsesorias() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => RegistroAsesorias()),
+      MaterialPageRoute(
+        builder: (context) => RegistroAsesorias(),
+      ),
     );
   }
 
+  // ABRIR HISTORIAL DE ASESORÍAS
   void abrirHistorialAsesorias() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => HistorialAsesorias()),
+      MaterialPageRoute(
+        builder: (context) => HistorialAsesorias(),
+      ),
     );
   }
 
+  // ABRIR PUNTUACIÓN DE ALUMNOS
   void abrirPuntuacionAlumnos() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PuntuacionAlumnos()),
+      MaterialPageRoute(
+        builder: (context) => PuntuacionAlumnos(),
+      ),
     );
   }
 
@@ -72,12 +101,16 @@ class _HomeDocenteState extends State<HomeDocente> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Alumno vinculado correctamente')),
+        const SnackBar(
+          content: Text('Alumno vinculado correctamente'),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('El código no existe o el alumno ya está vinculado'),
+          content: Text(
+            'El código no existe o el alumno ya está vinculado',
+          ),
         ),
       );
     }
@@ -86,7 +119,8 @@ class _HomeDocenteState extends State<HomeDocente> {
   @override
   Widget build(BuildContext context) {
     // MOSTRAR LOS ALUMNOS DE PRUEBA DEL GRUPO
-    final alumnosActuales = alumnosPorGrupo[grupoSeleccionado] ?? [];
+    final alumnosActuales =
+        alumnosPorGrupo[grupoSeleccionado] ?? [];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
@@ -103,6 +137,45 @@ class _HomeDocenteState extends State<HomeDocente> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
+                  // BOTÓN MI PERFIL
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: OutlinedButton.icon(
+                      onPressed: abrirPerfil,
+
+                      icon: const Icon(
+                        Icons.account_circle_outlined,
+                        color: Colors.deepPurple,
+                      ),
+
+                      label: const Text(
+                        "Mi perfil",
+                        style: TextStyle(
+                          color: Colors.deepPurple,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(
+                          color: Colors.deepPurple,
+                        ),
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // SECCIÓN ASESORÍAS
                   const Text(
                     'ASESORIAS',
                     style: TextStyle(
@@ -115,9 +188,9 @@ class _HomeDocenteState extends State<HomeDocente> {
 
                   const SizedBox(height: 10),
 
+                  // REGISTRAR ASESORÍA
                   SizedBox(
                     width: double.infinity,
-
                     child: ElevatedButton.icon(
                       onPressed: abrirRegistroAsesorias,
 
@@ -128,9 +201,9 @@ class _HomeDocenteState extends State<HomeDocente> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7648FF),
                         foregroundColor: Colors.white,
-
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -140,22 +213,22 @@ class _HomeDocenteState extends State<HomeDocente> {
 
                   const SizedBox(height: 10),
 
+                  // HISTORIAL DE ASESORÍAS
                   SizedBox(
                     width: double.infinity,
-
                     child: ElevatedButton.icon(
                       onPressed: abrirHistorialAsesorias,
 
-                      icon: const Icon(Icons.person_add),
+                      icon: const Icon(Icons.history),
 
                       label: const Text('Historial de asesorias'),
 
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7648FF),
                         foregroundColor: Colors.white,
-
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -185,7 +258,6 @@ class _HomeDocenteState extends State<HomeDocente> {
                   // BOTÓN AGREGAR ALUMNO
                   SizedBox(
                     width: double.infinity,
-
                     child: ElevatedButton.icon(
                       onPressed: abrirFormularioVinculacion,
 
@@ -196,9 +268,9 @@ class _HomeDocenteState extends State<HomeDocente> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7648FF),
                         foregroundColor: Colors.white,
-
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -208,6 +280,7 @@ class _HomeDocenteState extends State<HomeDocente> {
 
                   const SizedBox(height: 22),
 
+                  // SECCIÓN PUNTUACIÓN
                   const Text(
                     'Puntaje',
                     style: TextStyle(
@@ -220,22 +293,22 @@ class _HomeDocenteState extends State<HomeDocente> {
 
                   const SizedBox(height: 10),
 
+                  // BOTÓN PUNTUACIÓN DE ALUMNOS
                   SizedBox(
                     width: double.infinity,
-
                     child: ElevatedButton.icon(
                       onPressed: abrirPuntuacionAlumnos,
 
-                      icon: const Icon(Icons.person_add),
+                      icon: const Icon(Icons.bar_chart),
 
-                      label: const Text('Puntages de alumnos'),
+                      label: const Text('Puntajes de alumnos'),
 
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7648FF),
                         foregroundColor: Colors.white,
-
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -252,7 +325,8 @@ class _HomeDocenteState extends State<HomeDocente> {
 
                     onAlumnoTap: (index) {
                       setState(() {
-                        alumnoAbierto = alumnoAbierto == index ? null : index;
+                        alumnoAbierto =
+                            alumnoAbierto == index ? null : index;
                       });
                     },
                   ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/views/pantalla_calendario.dart';
 import 'package:soga/views/pantalla_login.dart';
 import 'package:soga/views/pantalla_notas.dart';
 import 'package:soga/views/pantalla_notificaciones.dart';
 import 'package:soga/views/pantalla_tareas.dart';
+import 'package:soga/views/perfil.dart';
 import 'package:soga/widgets/formulario_nueva_tarea.dart';
 import 'package:soga/widgets/widget_asesoria.dart';
 
@@ -12,7 +14,9 @@ import '../widgets/tarjeta_acceso.dart';
 import '../widgets/tarjeta_tarea.dart';
 
 class HomeAlumno extends StatefulWidget {
-  const HomeAlumno({super.key});
+  final UsuarioSesion usuario;
+
+  const HomeAlumno({super.key, required this.usuario});
 
   @override
   State<HomeAlumno> createState() => _HomeAlumnoState();
@@ -25,6 +29,15 @@ class _HomeAlumnoState extends State<HomeAlumno> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PantallaTareas()),
+    );
+  }
+
+  void abrirPerfil() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantallaPerfil(usuario: widget.usuario),
+      ),
     );
   }
 
@@ -99,6 +112,13 @@ class _HomeAlumnoState extends State<HomeAlumno> {
             onPressed: abrirPantallaNotificaciones,
             icon: Icon(Icons.notifications),
             color: Colors.white,
+          ),
+          IconButton(
+            icon: Icon(Icons.account_circle),
+            color: Colors.white,
+            onPressed: (){
+              abrirPerfil();
+            },
           ),
         ],
       ),
