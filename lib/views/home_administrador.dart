@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/views/agregar_docentes.dart';
@@ -6,6 +5,7 @@ import 'package:soga/views/agregar_inscripcion.dart';
 import 'package:soga/views/agregar_materia.dart';
 import 'package:soga/views/altaGrupo.dart';
 import 'package:soga/views/perfil.dart';
+import 'package:soga/views/pantalla_formulario_admin.dart';
 
 import '../datasourses/datos_temporales.dart';
 import 'pantalla_login.dart';
@@ -13,26 +13,19 @@ import 'pantalla_login.dart';
 class HomeAdministrador extends StatefulWidget {
   final UsuarioSesion usuario;
 
-  const HomeAdministrador({
-    super.key,
-    required this.usuario,
-  });
+  const HomeAdministrador({super.key, required this.usuario});
 
   @override
-  State<HomeAdministrador> createState() =>
-      _HomeAdministradorState();
+  State<HomeAdministrador> createState() => _HomeAdministradorState();
 }
 
 class _HomeAdministradorState extends State<HomeAdministrador> {
-
   // ABRIR PERFIL
   void abrirPerfil() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PantallaPerfil(
-          usuario: widget.usuario,
-        ),
+        builder: (context) => PantallaPerfil(usuario: widget.usuario),
       ),
     );
   }
@@ -41,9 +34,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
   void cerrarSesion() {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (context) => const Login(),
-      ),
+      MaterialPageRoute(builder: (context) => const Login()),
       (route) => false,
     );
   }
@@ -52,9 +43,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
   void abrirPantallaDocente() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => PantallaAgregarDocente(),
-      ),
+      MaterialPageRoute(builder: (context) => PantallaAgregarDocente()),
     );
   }
 
@@ -62,9 +51,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
   void abrirPantallaFormularioGrupo() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => AltaGrupo(),
-      ),
+      MaterialPageRoute(builder: (context) => AltaGrupo()),
     );
   }
 
@@ -72,9 +59,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
   void abrirPantallaFormularioMteria() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => PantallaAgregarMateria(),
-      ),
+      MaterialPageRoute(builder: (context) => PantallaAgregarMateria()),
     );
   }
 
@@ -82,22 +67,25 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
   void abrirPantallaFormularioInscripcion() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => PantallaAgregarInscripcion(),
-      ),
+      MaterialPageRoute(builder: (context) => PantallaAgregarInscripcion()),
+    );
+  }
+
+  void abrirPantallaFormularioAdmin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PantallaFormularioAdmin()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final docentes = DatosTemporales.docentes;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
 
       body: Column(
         children: [
-
           // ENCABEZADO
           Container(
             width: double.infinity,
@@ -105,10 +93,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFF7043FF),
-                  Color(0xFFA16BFF),
-                ],
+                colors: [Color(0xFF7043FF), Color(0xFFA16BFF)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -119,11 +104,9 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-
                       const Text(
                         'PANEL ADMINISTRADOR',
                         style: TextStyle(
@@ -136,15 +119,23 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                       IconButton(
                         onPressed: cerrarSesion,
-                        icon: const Icon(
-                          Icons.logout,
-                          color: Colors.white,
-                        ),
+                        icon: const Icon(Icons.logout, color: Colors.white),
                       ),
                     ],
                   ),
 
                   const SizedBox(height: 20),
+
+                  const Text(
+                    'Administración',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
 
                   const Text(
                     'Administración de docentes',
@@ -159,10 +150,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                   const Text(
                     'Consulta y administra los docentes del sistema.',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                 ],
               ),
@@ -174,7 +162,6 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-
                 // BOTÓN MI PERFIL
                 Align(
                   alignment: Alignment.centerRight,
@@ -196,9 +183,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                     ),
 
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Colors.deepPurple,
-                      ),
+                      side: const BorderSide(color: Colors.deepPurple),
                       backgroundColor: Colors.white,
 
                       padding: const EdgeInsets.symmetric(
@@ -219,7 +204,6 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-
                     const Text(
                       'Docentes registrados',
                       style: TextStyle(
@@ -243,9 +227,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                 // LISTA DE DOCENTES
                 if (docentes.isEmpty)
-                  const Center(
-                    child: Text('No hay docentes registrados'),
-                  )
+                  const Center(child: Text('No hay docentes registrados'))
                 else
                   ...docentes.map(
                     (docente) => Card(
@@ -254,17 +236,12 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                       child: ListTile(
                         leading: const CircleAvatar(
                           backgroundColor: Color(0xFF7043FF),
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.white,
-                          ),
+                          child: Icon(Icons.person, color: Colors.white),
                         ),
 
                         title: Text(
                           docente.nombre,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
 
                         subtitle: Text(docente.correo),
@@ -365,6 +342,28 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                     icon: const Icon(Icons.add),
 
                     label: const Text('Agregar inscripcion'),
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7043FF),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // BOTÓN AGREGAR Inscripcion
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      abrirPantallaFormularioAdmin();
+                    },
+
+                    icon: const Icon(Icons.add),
+
+                    label: const Text('Agregar administrador'),
 
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7043FF),
