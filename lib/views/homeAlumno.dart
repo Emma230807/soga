@@ -4,6 +4,7 @@ import 'package:soga/views/pantalla_login.dart';
 import 'package:soga/views/pantalla_notas.dart';
 import 'package:soga/views/pantalla_tareas.dart';
 import 'package:soga/widgets/formulario_nueva_tarea.dart';
+import 'package:soga/widgets/widget_asesoria.dart';
 
 import '../controllers/tarea_controller.dart';
 import '../widgets/tarjeta_acceso.dart';
@@ -25,13 +26,10 @@ class _HomeAlumnoState extends State<HomeAlumno> {
       MaterialPageRoute(builder: (context) => PantallaTareas()),
     );
   }
+
   void abrirPantallaLogin() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Login()),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
   }
-  
 
   void mostrarFormularioTarea() {
     showModalBottomSheet(
@@ -40,6 +38,16 @@ class _HomeAlumnoState extends State<HomeAlumno> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return const FormularioNuevaTarea();
+      },
+    );
+  }
+    void mostrarFormularioAsesoria() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return const WidgetAsesoria();
       },
     );
   }
@@ -78,10 +86,11 @@ class _HomeAlumnoState extends State<HomeAlumno> {
           ),
         ),
         actions: [
-          IconButton(onPressed: (){
-
-          }, icon: Icon(Icons.notifications),
-          color: Colors.white,)
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.notifications),
+            color: Colors.white,
+          ),
         ],
       ),
       backgroundColor: Color(0xFFF8F7FC),
@@ -248,6 +257,34 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                       },
                     ),
                   ),
+                ],
+              ),
+            ),
+
+            SizedBox(width: 12),
+
+            const SizedBox(height: 12),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TarjetaAcceso(
+                      titulo: "Agendar Asesoría",
+                      subtitulo: "Agenda una asesoría con tu docente",
+                      icono: Icons.menu_book,
+                      colorFondo: const Color(0xFFFFE5EA),
+                      colorIcono: const Color(0xFFFF5C6C),
+                      onTap: () {
+                        mostrarFormularioAsesoria();
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  const Spacer(),
                 ],
               ),
             ),
