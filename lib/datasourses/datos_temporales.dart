@@ -1,12 +1,97 @@
+import 'package:flutter/material.dart';
+import 'package:soga/models/alumno.dart';
 import 'package:soga/models/docente.dart';
 import 'package:soga/models/grupo.dart';
+import 'package:soga/models/tarea.dart';
 import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/models/vinculacion_docente_alumno.dart';
+import 'package:soga/models/asesoria.dart';
 
 class DatosTemporales {
+  static List<Asesoria> asesorias = [
+    Asesoria(
+      idAsesoria: 1,
+      fecha: DateTime(2026, 10, 30),
+      hora: const TimeOfDay(hour: 9, minute: 0),
+      nombreCompletoProfesor: "Ema Ramírez",
+      nombreCompletoAlumno: "Carlos López",
+    ),
+    Asesoria(
+      idAsesoria: 2,
+      fecha: DateTime(2026, 10, 30),
+      hora: const TimeOfDay(hour: 11, minute: 30),
+      nombreCompletoProfesor: "María González",
+      nombreCompletoAlumno: "Ana Martínez",
+    ),
+    Asesoria(
+      idAsesoria: 3,
+      fecha: DateTime(2026, 11, 2),
+      hora: const TimeOfDay(hour: 10, minute: 0),
+      nombreCompletoProfesor: "Ema Ramírez",
+      nombreCompletoAlumno: "Luis Hernández",
+    ),
+    Asesoria(
+      idAsesoria: 4,
+      fecha: DateTime(2026, 11, 3),
+      hora: const TimeOfDay(hour: 12, minute: 0),
+      nombreCompletoProfesor: "José Pérez",
+      nombreCompletoAlumno: "Carlos López",
+    ),
+    Asesoria(
+      idAsesoria: 5,
+      fecha: DateTime(2026, 11, 4),
+      hora: const TimeOfDay(hour: 8, minute: 30),
+      nombreCompletoProfesor: "María González",
+      nombreCompletoAlumno: "Sofía Torres",
+    ),
+    Asesoria(
+      idAsesoria: 6,
+      fecha: DateTime(2026, 10, 20),
+      hora: const TimeOfDay(hour: 9, minute: 30),
+      nombreCompletoProfesor: "Ema Ramírez",
+      nombreCompletoAlumno: "Ana Martínez",
+    ),
+    Asesoria(
+      idAsesoria: 7,
+      fecha: DateTime(2026, 10, 22),
+      hora: const TimeOfDay(hour: 13, minute: 0),
+      nombreCompletoProfesor: "José Pérez",
+      nombreCompletoAlumno: "Diego Sánchez",
+    ),
+    Asesoria(
+      idAsesoria: 8,
+      fecha: DateTime(2026, 10, 25),
+      hora: const TimeOfDay(hour: 10, minute: 30),
+      nombreCompletoProfesor: "María González",
+      nombreCompletoAlumno: "Luis Hernández",
+    ),
+    Asesoria(
+      idAsesoria: 9,
+      fecha: DateTime(2026, 11, 5),
+      hora: const TimeOfDay(hour: 14, minute: 0),
+      nombreCompletoProfesor: "Ema Ramírez",
+      nombreCompletoAlumno: "Sofía Torres",
+    ),
+    Asesoria(
+      idAsesoria: 10,
+      fecha: DateTime(2026, 11, 6),
+      hora: const TimeOfDay(hour: 11, minute: 0),
+      nombreCompletoProfesor: "José Pérez",
+      nombreCompletoAlumno: "Diego Sánchez",
+    ),
+  ];
+
   // ==========================================
   // LISTA DE DOCENTES
   // ==========================================
+
+  static final materias = [
+    'Matemáticas',
+    'Español',
+    'Inglés',
+    'Programación',
+    'Base de datos',
+  ];
 
   static final List<Docente> docentes = [
     Docente(
@@ -31,6 +116,95 @@ class DatosTemporales {
   // ==========================================
   // CUENTAS DE ALUMNOS Y ADMINISTRADORES
   // ==========================================
+
+  // ALUMNOS ORGANIZADOS POR GRUPO
+  static const Map<String, List<Alumno>> alumnosPorGrupo = {
+    '3° A · Matemáticas': [
+      Alumno(
+        codigoAlumno: 'ALU-0002',
+        nombre: 'Ana Martínez',
+        iniciales: 'AM',
+        color: Color(0xFF7648FF),
+        tareas: [
+          Tarea(titulo: 'Ejercicios de álgebra', fechaEntrega: '20 de octubre'),
+          Tarea(
+            titulo: 'Problemas de ecuaciones',
+            fechaEntrega: '23 de octubre',
+          ),
+        ],
+      ),
+      Alumno(
+        codigoAlumno: 'ALU-0003',
+        nombre: 'Diego Hernández',
+        iniciales: 'DH',
+        color: Color(0xFFFF754F),
+        tareas: [
+          Tarea(
+            titulo: 'Operaciones con fracciones',
+            fechaEntrega: '21 de octubre',
+          ),
+        ],
+      ),
+      Alumno(
+        codigoAlumno: 'ALU-0004',
+        nombre: 'Lucía Torres',
+        iniciales: 'LT',
+        color: Color(0xFF31CFA1),
+        tareas: [
+          Tarea(titulo: 'Ecuaciones lineales', fechaEntrega: '20 de octubre'),
+          Tarea(titulo: 'Geometría básica', fechaEntrega: '22 de octubre'),
+          Tarea(titulo: 'Problemas matemáticos', fechaEntrega: '25 de octubre'),
+        ],
+      ),
+    ],
+
+    '3° B · Matemáticas': [
+      Alumno(
+        codigoAlumno: 'ALU-0005',
+        nombre: 'Carlos López',
+        iniciales: 'CL',
+        color: Color(0xFF7648FF),
+        tareas: [
+          Tarea(
+            titulo: 'Multiplicación de polinomios',
+            fechaEntrega: '24 de octubre',
+          ),
+        ],
+      ),
+      Alumno(
+        codigoAlumno: 'ALU-0006',
+        nombre: 'Sofía Ramírez',
+        iniciales: 'SR',
+        color: Color(0xFF31CFA1),
+        tareas: [
+          Tarea(titulo: 'Factorización', fechaEntrega: '25 de octubre'),
+          Tarea(titulo: 'Ecuaciones', fechaEntrega: '26 de octubre'),
+        ],
+      ),
+    ],
+
+    '2° A · Física': [
+      Alumno(
+        codigoAlumno: 'ALU-0007',
+        nombre: 'Pedro Sánchez',
+        iniciales: 'PS',
+        color: Color(0xFFFF754F),
+        tareas: [
+          Tarea(titulo: 'Leyes de Newton', fechaEntrega: '27 de octubre'),
+        ],
+      ),
+      Alumno(
+        codigoAlumno: 'ALU-0008',
+        nombre: 'Mariana Gómez',
+        iniciales: 'MG',
+        color: Color(0xFF7648FF),
+        tareas: [
+          Tarea(titulo: 'Movimiento rectilíneo', fechaEntrega: '28 de octubre'),
+          Tarea(titulo: 'Fuerza y masa', fechaEntrega: '29 de octubre'),
+        ],
+      ),
+    ],
+  };
 
   static final List<Map<String, dynamic>> otrasCuentas = [
     {

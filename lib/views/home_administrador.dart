@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:soga/views/agregar_docentes.dart';
 import 'package:soga/views/agregar_inscripcion.dart';
 import 'package:soga/views/agregar_materia.dart';
+import 'package:soga/views/altaGrupo.dart';
 
 import '../datasourses/datos_temporales.dart';
 import 'pantalla_login.dart';
@@ -29,14 +30,12 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
     );
   }
 
-  /*
-  void abrirPantallaFormularioGrupo(){
+  void abrirPantallaFormularioGrupo() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ),
+      MaterialPageRoute(builder: (context) => AltaGrupo()),
     );
   }
-  */
 
   void abrirPantallaFormularioMteria() {
     Navigator.push(
@@ -218,7 +217,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                   height: 50,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      abrirPantallaDocente();
+                      abrirPantallaFormularioGrupo();
                     },
 
                     icon: const Icon(Icons.add),

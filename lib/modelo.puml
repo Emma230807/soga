@@ -77,8 +77,8 @@ class Asesoria {
   idAsesoria : INT
   fecha : DATE
   hora : TIME
-  numeroEmpleadoProf : VARCHAR(10)
-  matricula : VARCHAR(10)
+  nombreCompletoProfesor : VARCHAR(50)
+  nombreCompletoAlumno : VARCHAR(50)
 }
 
 ' =========================
