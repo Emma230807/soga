@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class Tarea {
   int idTarea;
   String descripcion;
