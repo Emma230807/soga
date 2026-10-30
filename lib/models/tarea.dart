@@ -11,6 +11,7 @@ class Tarea {
   String matricula;
   String fechaEntrega;
   bool completada;
+  final String instrucciones;
   String alumno;
 
   Tarea({
@@ -23,6 +24,7 @@ class Tarea {
     required this.color,
     required this.matricula,
     required this.fechaEntrega,
+    this.instrucciones = "Sin Instrucciones",
     this.completada = false,
     required this.alumno,
   });

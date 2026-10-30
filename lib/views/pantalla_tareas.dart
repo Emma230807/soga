@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:soga/controllers/tarea_controller.dart';
+import 'package:soga/views/detalle_pantalla.dart';
 import 'package:soga/widgets/tarjeta_tarea.dart';
 
 class PantallaTareas extends StatefulWidget {
@@ -18,7 +18,6 @@ class _PantallaTarea extends State<PantallaTareas> {
 
   @override
   Widget build(BuildContext context) {
-
     // OBTENER LAS TAREAS FILTRADAS DEL CONTROLADOR
     final tareasFiltradas = controlador.filtrarTareas(
       textoBusqueda,
@@ -31,10 +30,7 @@ class _PantallaTarea extends State<PantallaTareas> {
       appBar: AppBar(
         title: Text(
           "Mis tareas",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -135,14 +131,23 @@ class _PantallaTarea extends State<PantallaTareas> {
                     textoBusqueda.isNotEmpty
                         ? "No se encontraron tareas"
                         : filtroSeleccionado == 0
-                            ? "No tienes tareas pendientes"
-                            : "No tienes tareas completadas",
+                        ? "No tienes tareas pendientes"
+                        : "No tienes tareas completadas",
                   ),
                 ),
 
-              for (final tarea in tareasFiltradas)
-                Padding(
-                  padding: EdgeInsets.only(bottom: 15),
+              for (final tarea in controlador.tareasVisibles)
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PantallaDetalleTarea(tarea: tarea),
+                      ),
+                    );
+                  },
+
                   child: TarjetaTarea(
                     tarea: tarea,
 

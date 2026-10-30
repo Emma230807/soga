@@ -14,6 +14,7 @@ class TareasData {
         matricula: "ALU-0002",
         alumno: "Ana Martínez",
         fechaEntrega: "8 nov",
+        instrucciones: "Ensayo sobre la revolucion francesa minimo una cuartilla",
       ),
       Tarea(
         idTarea: 2,
@@ -26,6 +27,7 @@ class TareasData {
         matricula: "ALU-0002",
         alumno: "Ana Martínez",
         fechaEntrega: "10 nov",
+        instrucciones: "Resover los ejercicios sobre derivadas"
       ),
       Tarea(
         idTarea: 3,
@@ -38,6 +40,7 @@ class TareasData {
         matricula: "ALU-0002",
         alumno: "Ana Martínez",
         fechaEntrega: "12 nov",
+        instrucciones: "Elabora una presentacion sobre los metodos de balanceo de ecuaciones "
       ),
       Tarea(
         idTarea: 4,
