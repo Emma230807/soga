@@ -1,53 +1,90 @@
+
 import 'package:flutter/material.dart';
+import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/views/agregar_docentes.dart';
 import 'package:soga/views/agregar_inscripcion.dart';
 import 'package:soga/views/agregar_materia.dart';
 import 'package:soga/views/altaGrupo.dart';
+import 'package:soga/views/perfil.dart';
 
 import '../datasourses/datos_temporales.dart';
 import 'pantalla_login.dart';
 
 class HomeAdministrador extends StatefulWidget {
-  const HomeAdministrador({super.key});
+  final UsuarioSesion usuario;
+
+  const HomeAdministrador({
+    super.key,
+    required this.usuario,
+  });
 
   @override
-  State<HomeAdministrador> createState() => _HomeAdministradorState();
+  State<HomeAdministrador> createState() =>
+      _HomeAdministradorState();
 }
 
 class _HomeAdministradorState extends State<HomeAdministrador> {
+
+  // ABRIR PERFIL
+  void abrirPerfil() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantallaPerfil(
+          usuario: widget.usuario,
+        ),
+      ),
+    );
+  }
+
+  // CERRAR SESIÓN
   void cerrarSesion() {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const Login()),
+      MaterialPageRoute(
+        builder: (context) => const Login(),
+      ),
       (route) => false,
     );
   }
 
+  // AGREGAR DOCENTE
   void abrirPantallaDocente() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PantallaAgregarDocente()),
+      MaterialPageRoute(
+        builder: (context) => PantallaAgregarDocente(),
+      ),
     );
   }
 
+  // AGREGAR GRUPO
   void abrirPantallaFormularioGrupo() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AltaGrupo()),
+      MaterialPageRoute(
+        builder: (context) => AltaGrupo(),
+      ),
     );
   }
 
+  // AGREGAR MATERIA
   void abrirPantallaFormularioMteria() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PantallaAgregarMateria()),
+      MaterialPageRoute(
+        builder: (context) => PantallaAgregarMateria(),
+      ),
     );
   }
 
+  // AGREGAR INSCRIPCIÓN
   void abrirPantallaFormularioInscripcion() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PantallaAgregarInscripcion()),
+      MaterialPageRoute(
+        builder: (context) => PantallaAgregarInscripcion(),
+      ),
     );
   }
 
@@ -60,13 +97,18 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
       body: Column(
         children: [
+
           // ENCABEZADO
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 25),
+
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF7043FF), Color(0xFFA16BFF)],
+                colors: [
+                  Color(0xFF7043FF),
+                  Color(0xFFA16BFF),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -77,9 +119,11 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+
                       const Text(
                         'PANEL ADMINISTRADOR',
                         style: TextStyle(
@@ -92,7 +136,10 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                       IconButton(
                         onPressed: cerrarSesion,
-                        icon: const Icon(Icons.logout, color: Colors.white),
+                        icon: const Icon(
+                          Icons.logout,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -112,7 +159,10 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                   const Text(
                     'Consulta y administra los docentes del sistema.',
-                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),
@@ -124,9 +174,52 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
+
+                // BOTÓN MI PERFIL
+                Align(
+                  alignment: Alignment.centerRight,
+
+                  child: OutlinedButton.icon(
+                    onPressed: abrirPerfil,
+
+                    icon: const Icon(
+                      Icons.account_circle_outlined,
+                      color: Colors.deepPurple,
+                    ),
+
+                    label: const Text(
+                      "Mi perfil",
+                      style: TextStyle(
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(
+                        color: Colors.deepPurple,
+                      ),
+                      backgroundColor: Colors.white,
+
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // TÍTULO DOCENTES REGISTRADOS
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+
                     const Text(
                       'Docentes registrados',
                       style: TextStyle(
@@ -150,20 +243,28 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                 // LISTA DE DOCENTES
                 if (docentes.isEmpty)
-                  const Center(child: Text('No hay docentes registrados'))
+                  const Center(
+                    child: Text('No hay docentes registrados'),
+                  )
                 else
                   ...docentes.map(
                     (docente) => Card(
                       margin: const EdgeInsets.only(bottom: 12),
+
                       child: ListTile(
                         leading: const CircleAvatar(
                           backgroundColor: Color(0xFF7043FF),
-                          child: Icon(Icons.person, color: Colors.white),
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white,
+                          ),
                         ),
 
                         title: Text(
                           docente.nombre,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
 
                         subtitle: Text(docente.correo),
@@ -178,6 +279,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                               ),
                             );
                           },
+
                           icon: const Icon(
                             Icons.edit,
                             color: Color(0xFF7043FF),
@@ -193,10 +295,9 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                 SizedBox(
                   width: double.infinity,
                   height: 50,
+
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      abrirPantallaDocente();
-                    },
+                    onPressed: abrirPantallaDocente,
 
                     icon: const Icon(Icons.add),
 
@@ -211,14 +312,13 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                 const SizedBox(height: 20),
 
-                // BOTÓN AGREGAR Grupo
+                // BOTÓN AGREGAR GRUPO
                 SizedBox(
                   width: double.infinity,
                   height: 50,
+
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      abrirPantallaFormularioGrupo();
-                    },
+                    onPressed: abrirPantallaFormularioGrupo,
 
                     icon: const Icon(Icons.add),
 
@@ -233,14 +333,13 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                 const SizedBox(height: 20),
 
-                // BOTÓN AGREGAR Materia
+                // BOTÓN AGREGAR MATERIA
                 SizedBox(
                   width: double.infinity,
                   height: 50,
+
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      abrirPantallaFormularioMteria();
-                    },
+                    onPressed: abrirPantallaFormularioMteria,
 
                     icon: const Icon(Icons.add),
 
@@ -255,14 +354,13 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
                 const SizedBox(height: 20),
 
-                // BOTÓN AGREGAR Inscripcion
+                // BOTÓN AGREGAR INSCRIPCIÓN
                 SizedBox(
                   width: double.infinity,
                   height: 50,
+
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      abrirPantallaFormularioInscripcion();
-                    },
+                    onPressed: abrirPantallaFormularioInscripcion,
 
                     icon: const Icon(Icons.add),
 

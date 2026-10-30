@@ -1,11 +1,11 @@
+
 import 'package:flutter/material.dart';
 import 'package:soga/views/homeAlumno.dart';
 import 'package:soga/views/home_administrador.dart';
-
+import 'package:soga/views/home_docente.dart';
 import 'package:soga/widgets/campo_login.dart';
 import 'package:soga/datasourses/datos_temporales.dart';
 import 'package:soga/models/usuario_sesion.dart';
-import 'package:soga/views/home_docente.dart';
 
 class FormularioLogin extends StatefulWidget {
   const FormularioLogin({super.key});
@@ -20,8 +20,9 @@ class _FormularioLoginState extends State<FormularioLogin> {
 
   // MÉTODO PARA MOSTRAR MENSAJES
   void mostrarMensaje(String mensaje) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(mensaje)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensaje)),
+    );
   }
 
   // MÉTODO PARA INICIAR SESIÓN
@@ -38,12 +39,15 @@ class _FormularioLoginState extends State<FormularioLogin> {
         Colors.red,
       );
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       return;
     }
 
-    // VALIDAR CREDENCIALES EN DATOS TEMPORALES
-    final usuario = DatosTemporales.iniciarSesion(correo, contrasena);
+    // VALIDAR CREDENCIALES
+    final usuario = DatosTemporales.iniciarSesion(
+      correo,
+      contrasena,
+    );
 
     // COMPROBAR SI EXISTE EL USUARIO
     if (usuario == null) {
@@ -53,9 +57,19 @@ class _FormularioLoginState extends State<FormularioLogin> {
 
     // IDENTIFICAR EL TIPO DE USUARIO
     switch (usuario.rol) {
+
       // DOCENTE
       case RolUsuario.docente:
-        final docente = DatosTemporales.validarDocente(correo, contrasena);
+        final docente = DatosTemporales.validarDocente(
+          correo,
+          contrasena,
+        );
+
+        if (docente == null) {
+          mostrarMensaje("No se encontró el docente");
+          return;
+        }
+
         await mostrarRegistroExitoso(
           context,
           "Registro exitoso",
@@ -63,18 +77,20 @@ class _FormularioLoginState extends State<FormularioLogin> {
           Colors.green,
         );
 
-        if (!context.mounted) return;
-        if (docente != null) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeDocente(docente: docente),
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeDocente(
+              docente: docente,
+              usuario: usuario,
             ),
-          );
-        }
+          ),
+        );
         break;
 
-      // ALUMNO OSWA, aqui va el apartado de alumno
+      // ALUMNO
       case RolUsuario.alumno:
         await mostrarRegistroExitoso(
           context,
@@ -83,11 +99,15 @@ class _FormularioLoginState extends State<FormularioLogin> {
           Colors.green,
         );
 
-        if (!context.mounted) return;
+        if (!mounted) return;
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeAlumno()),
+          MaterialPageRoute(
+            builder: (context) => HomeAlumno(
+              usuario: usuario,
+            ),
+          ),
         );
         break;
 
@@ -100,15 +120,21 @@ class _FormularioLoginState extends State<FormularioLogin> {
           Colors.green,
         );
 
-        if (!context.mounted) return;
+        if (!mounted) return;
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeAdministrador()),
+          MaterialPageRoute(
+            builder: (context) => HomeAdministrador(
+              usuario: usuario,
+            ),
+          ),
         );
         break;
     }
   }
 
+  // MOSTRAR MENSAJE DE REGISTRO
   Future<void> mostrarRegistroExitoso(
     BuildContext context,
     String mensaje,
@@ -124,11 +150,16 @@ class _FormularioLoginState extends State<FormularioLogin> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icono, color: color, size: 60),
-              SizedBox(height: 15),
+
+              const SizedBox(height: 15),
+
               Text(
                 mensaje,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -136,7 +167,9 @@ class _FormularioLoginState extends State<FormularioLogin> {
       },
     );
 
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(
+      const Duration(seconds: 1),
+    );
 
     if (context.mounted) {
       Navigator.of(context, rootNavigator: true).pop();
@@ -155,6 +188,7 @@ class _FormularioLoginState extends State<FormularioLogin> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
+
       decoration: const BoxDecoration(
         color: Color(0xFFF2F0FF),
         borderRadius: BorderRadius.only(
@@ -162,17 +196,24 @@ class _FormularioLoginState extends State<FormularioLogin> {
           topRight: Radius.circular(28),
         ),
       ),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Iniciar sesión',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
 
           const SizedBox(height: 15),
 
-          const Text('Correo', style: TextStyle(fontSize: 16)),
+          const Text(
+            'Correo',
+            style: TextStyle(fontSize: 16),
+          ),
 
           CampoLogin(
             texto: 'Ingresa tu correo',
@@ -182,7 +223,10 @@ class _FormularioLoginState extends State<FormularioLogin> {
 
           const SizedBox(height: 20),
 
-          const Text('Contraseña', style: TextStyle(fontSize: 16)),
+          const Text(
+            'Contraseña',
+            style: TextStyle(fontSize: 16),
+          ),
 
           CampoLogin(
             texto: 'Ingresa tu contraseña',
@@ -209,9 +253,17 @@ class _FormularioLoginState extends State<FormularioLogin> {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Ingresar', style: TextStyle(color: Colors.white)),
+                  Text(
+                    'Ingresar',
+                    style: TextStyle(color: Colors.white),
+                  ),
+
                   SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, color: Colors.white),
+
+                  Icon(
+                    Icons.arrow_forward,
+                    color: Colors.white,
+                  ),
                 ],
               ),
             ),
