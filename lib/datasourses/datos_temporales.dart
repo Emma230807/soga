@@ -1443,11 +1443,71 @@ class DatosTemporales {
         .from('asesoria')
         .select(
           'idAsesoria, titulo, idMateria, fecha, hora, '
-          'nombreCompletoProfesor, nombreCompletoAlumno',
+          'nombreCompletoProfesor, nombreCompletoAlumno, estado, origen',
         )
         .eq('matricula', matricula)
         .order('fecha', ascending: false)
         .order('hora', ascending: false);
     return List<Map<String, dynamic>>.from(respuesta);
+  }
+
+  // ASESORIAS DEL DOCENTE: consulta solo las asignadas al profesor autenticado.
+  // La politica RLS de public.asesoria debe comprobar la identidad en servidor.
+  static Future<List<Map<String, dynamic>>>
+  obtenerAsesoriasDocenteSupabase() async {
+    final supabase = Supabase.instance.client;
+    final usuarioAuth = supabase.auth.currentUser;
+    if (usuarioAuth == null) {
+      throw StateError('Inicia sesion para consultar tus asesorias');
+    }
+
+    final perfil = await supabase
+        .from('usuario')
+        .select('idUsuario, tipoUsuario')
+        .eq('auth_uid', usuarioAuth.id)
+        .single();
+    if (perfil['tipoUsuario'] != 'PROFESOR') {
+      throw StateError('Esta cuenta no corresponde a un profesor');
+    }
+
+    final profesor = await supabase
+        .from('profesor')
+        .select('numeroEmpleadoProf')
+        .eq('idUsuario', perfil['idUsuario'])
+        .single();
+    final numeroEmpleado = profesor['numeroEmpleadoProf'] as String;
+
+    final respuesta = await supabase
+        .from('asesoria')
+        .select(
+          'idAsesoria, titulo, idMateria, fecha, hora, '
+          'nombreCompletoProfesor, nombreCompletoAlumno, estado, origen',
+        )
+        .eq('numeroEmpleadoProf', numeroEmpleado)
+        .order('fecha', ascending: false)
+        .order('hora', ascending: false);
+
+    return List<Map<String, dynamic>>.from(respuesta);
+  }
+
+  static Future<List<Map<String, dynamic>>>
+  obtenerActividadesDocenteSupabase() async {
+    final supabase = Supabase.instance.client;
+
+    if (supabase.auth.currentUser == null) {
+      throw Exception('Debes iniciar sesión');
+    }
+
+    final respuesta = await supabase.rpc('soga_docente_consultar_actividades');
+
+    if (respuesta is! List) {
+      throw const FormatException(
+        'Respuesta inválida al consultar actividades',
+      );
+    }
+
+    return respuesta
+        .map((fila) => Map<String, dynamic>.from(fila as Map))
+        .toList();
   }
 }
