@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:soga/widgets/encabezado_soga.dart';
+import 'package:soga/models/grupo.dart';
+import 'package:soga/datasourses/grupos_supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AltaGrupo extends StatefulWidget {
   const AltaGrupo({super.key});
@@ -11,6 +14,55 @@ class AltaGrupo extends StatefulWidget {
 class _AltaGrupoState extends State<AltaGrupo> {
   final TextEditingController idGrupoController = TextEditingController();
   final TextEditingController nombreGrupoController = TextEditingController();
+  bool guardando = false;
+  Future<void> guardarGrupo() async {
+    final id = idGrupoController.text.trim();
+    final nombre = nombreGrupoController.text.trim();
+
+    if (id.isEmpty || nombre.isEmpty) {
+      mostrarMensaje('Completa todos los campos');
+      return;
+    }
+
+    setState(() {
+      guardando = true;
+    });
+
+    try {
+      final grupo = Grupo(idGrupo: id, nombreGrupo: nombre);
+
+      await GruposSupabase.registrarGrupo(grupo);
+
+      if (!mounted) return;
+
+      idGrupoController.clear();
+      nombreGrupoController.clear();
+
+      mostrarMensaje('Grupo registrado correctamente');
+    } on PostgrestException catch (e) {
+      if (!mounted) return;
+
+      if (e.code == '23505') {
+        mostrarMensaje('El ID del grupo ya existe');
+      } else {
+        mostrarMensaje('Error: ${e.message}');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      mostrarMensaje('Error al registrar el grupo');
+    } finally {
+      if (mounted) {
+        setState(() {
+          guardando = false;
+        });
+      }
+    }
+  }
+
+  void mostrarMensaje(String mensaje) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
+  }
 
   @override
   void dispose() {
@@ -115,10 +167,7 @@ class _AltaGrupoState extends State<AltaGrupo> {
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Aquí se agregará la funcionalidad
-                        // para registrar el grupo.
-                      },
+                      onPressed: guardando ? null : guardarGrupo,
                       icon: const Icon(Icons.add, color: Colors.white),
                       label: const Text(
                         "Agregar grupo",

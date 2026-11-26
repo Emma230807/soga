@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:soga/datasourses/datos_temporales.dart';
+
+import 'package:soga/datasourses/profesores_supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 class PantallaAgregarDocente extends StatefulWidget {
   const PantallaAgregarDocente({super.key});
@@ -9,10 +12,132 @@ class PantallaAgregarDocente extends StatefulWidget {
 }
 
 class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
+  final numeroEmpleadoController = TextEditingController();
+  final nombreController = TextEditingController();
+  final usuarioController = TextEditingController();
+  final correoController = TextEditingController();
+  final contrasenaController = TextEditingController();
+  List<Map<String, dynamic>> docentes = [];
+
+  bool cargandoDocentes = true;
+
+  String? errorDocentes;
+  bool guardando = false;
+  @override
+  void initState() {
+    super.initState();
+    cargarDocentes();
+  }
+
+  Future<void> cargarDocentes() async {
+    try {
+      final resultado = await ProfesoresSupabase.obtenerProfesores();
+
+      if (!mounted) return;
+
+      setState(() {
+        docentes = resultado;
+        cargandoDocentes = false;
+        errorDocentes = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        cargandoDocentes = false;
+        errorDocentes = 'Error al consultar docentes';
+      });
+
+      debugPrint(e.toString());
+    }
+  }
+
+  @override
+  void dispose() {
+    numeroEmpleadoController.dispose();
+    nombreController.dispose();
+    usuarioController.dispose();
+    correoController.dispose();
+    contrasenaController.dispose();
+    super.dispose();
+  }
+
+  Future<void> guardarProfesor() async {
+    final numeroEmpleado = numeroEmpleadoController.text.trim();
+    final nombre = nombreController.text.trim();
+    final usuario = usuarioController.text.trim();
+    final correo = correoController.text.trim();
+    final contrasena = contrasenaController.text;
+
+    if (numeroEmpleado.isEmpty ||
+        nombre.isEmpty ||
+        usuario.isEmpty ||
+        correo.isEmpty ||
+        contrasena.trim().isEmpty) {
+      mostrarMensaje('Completa todos los campos');
+      return;
+    }
+
+    if (contrasena.length < 8) {
+      mostrarMensaje('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    setState(() {
+      guardando = true;
+    });
+
+    try {
+      await ProfesoresSupabase.registrarProfesor(
+        numeroEmpleado: numeroEmpleado,
+        nombre: nombre,
+        usuario: usuario,
+        correo: correo,
+        contrasena: contrasena,
+      );
+
+      if (!mounted) return;
+
+      numeroEmpleadoController.clear();
+      nombreController.clear();
+      usuarioController.clear();
+      correoController.clear();
+      contrasenaController.clear();
+
+      mostrarMensaje('Profesor registrado correctamente');
+      await cargarDocentes();
+    } on FunctionException catch (e) {
+      debugPrint('Código: ${e.status}');
+      debugPrint('Detalles: ${e.details}');
+      if (!mounted) return;
+
+      final detalles = e.details;
+
+      mostrarMensaje(
+        detalles is Map
+            ? '${detalles['mensaje'] ?? detalles['message'] ?? 'Error al registrar'}'
+            : 'Error al registrar: ${e.status}',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      mostrarMensaje('Error al registrar el profesor');
+      debugPrint('Error general: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          guardando = false;
+        });
+      }
+    }
+  }
+
+  void mostrarMensaje(String mensaje) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final docentes = DatosTemporales.docentes;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
       body: SafeArea(
@@ -96,28 +221,47 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _campo(
+                            'Número de empleado',
+                            'Ingresa el número de empleado',
+                            Icons.badge_outlined,
+                            controller: numeroEmpleadoController,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          _campo(
                             'Nombre completo',
                             'Ej. María López',
                             Icons.person_outline,
+                            controller: nombreController,
                           ),
+
                           const SizedBox(height: 20),
+
                           _campo(
                             'Usuario',
                             'Ej. MariaL',
                             Icons.account_circle_outlined,
+                            controller: usuarioController,
                           ),
+
                           const SizedBox(height: 20),
+
                           _campo(
                             'Correo electrónico',
                             'docente@correo.com',
                             Icons.email_outlined,
+                            controller: correoController,
                             tipo: TextInputType.emailAddress,
                           ),
+
                           const SizedBox(height: 20),
+
                           _campo(
                             'Contraseña',
                             'Ingresa la contraseña',
                             Icons.lock_outline,
+                            controller: contrasenaController,
                             ocultar: true,
                           ),
                         ],
@@ -130,15 +274,7 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Falta implementar el registro de docentes',
-                              ),
-                            ),
-                          );
-                        },
+                        onPressed: guardando ? null : guardarProfesor,
                         icon: const Icon(Icons.save_outlined),
                         label: const Text('Guardar docente'),
                         style: ElevatedButton.styleFrom(
@@ -186,13 +322,12 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
 
                     const SizedBox(height: 15),
 
-                    if (docentes.isEmpty)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Text('No hay docentes registrados'),
-                        ),
-                      )
+                    if (cargandoDocentes)
+                      const Center(child: CircularProgressIndicator())
+                    else if (errorDocentes != null)
+                      Center(child: Text(errorDocentes!))
+                    else if (docentes.isEmpty)
+                      const Center(child: Text('No hay docentes registrados'))
                     else
                       ...docentes.map(
                         (docente) => Card(
@@ -208,12 +343,12 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
                               child: Icon(Icons.person, color: Colors.white),
                             ),
                             title: Text(
-                              docente.nombre,
+                              docente['nombre'],
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            subtitle: Text(docente.correo),
+                            subtitle: Text(docente['correo']),
                             trailing: IconButton(
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -250,6 +385,7 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
     String hint,
     IconData icono, {
     bool ocultar = false,
+    required TextEditingController controller,
     TextInputType tipo = TextInputType.text,
   }) {
     return Column(
@@ -260,6 +396,7 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
         TextFormField(
           obscureText: ocultar,
           keyboardType: tipo,
+          controller: controller,
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: Icon(icono, color: Colors.deepPurple),

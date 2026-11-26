@@ -6,8 +6,8 @@ import 'package:soga/views/agregar_materia.dart';
 import 'package:soga/views/altaGrupo.dart';
 import 'package:soga/views/perfil.dart';
 import 'package:soga/views/pantalla_formulario_admin.dart';
+import 'package:soga/datasourses/profesores_supabase.dart';
 
-import '../datasourses/datos_temporales.dart';
 import 'pantalla_login.dart';
 
 class HomeAdministrador extends StatefulWidget {
@@ -20,6 +20,39 @@ class HomeAdministrador extends StatefulWidget {
 }
 
 class _HomeAdministradorState extends State<HomeAdministrador> {
+  List<Map<String, dynamic>> docentes = [];
+
+  bool cargandoDocentes = true;
+  @override
+  void initState() {
+    super.initState();
+    cargarDocentes();
+  }
+
+  Future<void> cargarDocentes() async {
+    try {
+      final resultado = await ProfesoresSupabase.obtenerProfesores();
+
+      if (!mounted) return;
+
+      setState(() {
+        docentes = resultado;
+        cargandoDocentes = false;
+        errorDocentes = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        cargandoDocentes = false;
+        errorDocentes = 'Error al consultar docentes';
+      });
+
+      debugPrint(e.toString());
+    }
+  }
+
+  String? errorDocentes;
   // ABRIR PERFIL
   void abrirPerfil() {
     Navigator.push(
@@ -40,11 +73,15 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
   }
 
   // AGREGAR DOCENTE
-  void abrirPantallaDocente() {
-    Navigator.push(
+  Future<void> abrirPantallaDocente() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PantallaAgregarDocente()),
     );
+
+    if (!mounted) return;
+
+    cargarDocentes();
   }
 
   // AGREGAR GRUPO
@@ -80,7 +117,6 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
 
   @override
   Widget build(BuildContext context) {
-    final docentes = DatosTemporales.docentes;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
 
@@ -226,7 +262,11 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                 const SizedBox(height: 15),
 
                 // LISTA DE DOCENTES
-                if (docentes.isEmpty)
+                if (cargandoDocentes)
+                  const Center(child: CircularProgressIndicator())
+                else if (errorDocentes != null)
+                  Center(child: Text(errorDocentes!))
+                else if (docentes.isEmpty)
                   const Center(child: Text('No hay docentes registrados'))
                 else
                   ...docentes.map(
@@ -240,11 +280,11 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                         ),
 
                         title: Text(
-                          docente.nombre,
+                          docente['nombre'],
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
 
-                        subtitle: Text(docente.correo),
+                        subtitle: Text(docente['correo']),
 
                         trailing: IconButton(
                           onPressed: () {

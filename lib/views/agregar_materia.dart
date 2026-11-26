@@ -1,8 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:soga/widgets/encabezado_soga.dart';
+import 'package:soga/datasourses/materias_supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PantallaAgregarMateria extends StatelessWidget {
+class PantallaAgregarMateria extends StatefulWidget {
   const PantallaAgregarMateria({super.key});
+  @override
+  State<PantallaAgregarMateria> createState() => _PantallaAgregarMateriaState();
+}
+
+class _PantallaAgregarMateriaState extends State<PantallaAgregarMateria> {
+  final nombreMateriaController = TextEditingController();
+
+  bool guardando = false;
+
+  @override
+  void dispose() {
+    nombreMateriaController.dispose();
+    super.dispose();
+  }
+
+  Future<void> guardarMateria() async {
+    final nombre = nombreMateriaController.text.trim();
+
+    if (nombre.isEmpty) {
+      mostrarMensaje('Ingresa el nombre de la materia');
+      return;
+    }
+
+    setState(() {
+      guardando = true;
+    });
+
+    try {
+      await MateriasSupabase.registrarMateria(nombre);
+
+      if (!mounted) return;
+
+      nombreMateriaController.clear();
+      mostrarMensaje('Materia registrada correctamente');
+    } on PostgrestException catch (e) {
+      if (!mounted) return;
+      mostrarMensaje('Error: ${e.message}');
+    } catch (e) {
+      if (!mounted) return;
+      mostrarMensaje('Error al registrar la materia');
+    } finally {
+      if (mounted) {
+        setState(() {
+          guardando = false;
+        });
+      }
+    }
+    
+  }
+
+  void mostrarMensaje(String mensaje) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +108,7 @@ class PantallaAgregarMateria extends StatelessWidget {
                         const SizedBox(height: 8),
 
                         TextFormField(
+                          controller: nombreMateriaController,
                           decoration: InputDecoration(
                             hintText: 'Ej. Matematicas',
                             prefixIcon: const Icon(
@@ -75,7 +132,7 @@ class PantallaAgregarMateria extends StatelessWidget {
                     height: 50,
 
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: guardando ? null : guardarMateria,
 
                       icon: const Icon(Icons.save_outlined),
                       label: const Text('Guardar materia'),
