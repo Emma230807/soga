@@ -1,28 +1,16 @@
-import 'package:soga/datasourses/tarea_data.dart';
-import 'package:soga/models/tarea.dart';
-import 'package:intl/intl.dart';
+import 'package:soga/datasourses/datos_temporales.dart';
 
 class CalendarioController {
-  List<Tarea> tareas = TareasData.obtenerTareas();
-  //convertir texto a fecha
-  Map<DateTime, List<String>> obtenerTareasCalendario(){
-    DateTime fecha;
-    String fechaSin; 
-     Map<DateTime,List<String>> tareasCalendario={}; 
-     for(var tarea in tareas){
-      if(tarea.completada != true){
-        fechaSin=tarea.fechaEntrega; 
-        fecha=DateFormat(
-          'd MMM yyyy',
-          'es_MX',
-        ).parseStrict('$fechaSin ${DateTime.now().year}');
-        tareasCalendario.putIfAbsent(fecha, () => []);
-        tareasCalendario[fecha]!.add(tarea.titulo);
-      }
-     }
-     return tareasCalendario; 
+  final String? matricula;
+  CalendarioController({this.matricula});
+
+  Map<DateTime, List<String>> obtenerTareasCalendario() {
+    final calendario = <DateTime, List<String>>{};
+    for (final tarea in DatosTemporales.obtenerTareas(matricula: matricula)) {
+      if (tarea.completada) continue;
+      final fecha = DateTime(tarea.fecha.year, tarea.fecha.month, tarea.fecha.day);
+      calendario.putIfAbsent(fecha, () => []).add(tarea.titulo);
+    }
+    return calendario;
   }
-  
-
-
 }

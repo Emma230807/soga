@@ -1,19 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:soga/views/agregar_docentes.dart';
-import 'package:soga/views/altaGrupo.dart';
-import 'package:soga/views/carga_administradores.dart';
-import 'package:soga/views/homeAlumno.dart';
-import 'package:soga/views/pantalla_notas.dart';
-import 'package:soga/views/pantalla_notificaciones.dart';
-import 'package:soga/views/pantalla_tareas.dart';
-import 'package:soga/views/registro_usuario.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:soga/views/vista_splash.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
-void main() async {
+import 'firebase_options.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initializeDateFormatting('es_MX');
+  // Inicializar Firebase (temporalmente)
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Inicializar Supabase
+  await Supabase.initialize(
+    url: 'https://bwcrkvkpepwmpwjpimoe.supabase.co',
+    publishableKey: 'sb_publishable_oHMPPSmBLFahhzdrnxE9OA_5tgqtRnV',
+  );
+
+  try {
+    final resultado = await Supabase.instance.client
+        .from('prueba_conexion')
+        .select()
+        .eq('id', 1)
+        .single();
+
+    debugPrint('Supabase: ${resultado['mensaje']}');
+  } catch (e) {
+    debugPrint('Error de conexión con Supabase: $e');
+  }
+
+  // Iniciar SOGA
   runApp(const MiAplicacion());
 }
 

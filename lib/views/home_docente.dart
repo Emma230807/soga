@@ -7,7 +7,6 @@ import 'package:soga/views/registro_asesorias.dart';
 import 'package:soga/views/perfil.dart';
 
 import '../models/docente.dart';
-import '../datasourses/datos_docente.dart';
 import '../datasourses/datos_temporales.dart';
 
 import '../widgets/encabezado_docente.dart';
@@ -30,7 +29,7 @@ class HomeDocente extends StatefulWidget {
 }
 
 class _HomeDocenteState extends State<HomeDocente> {
-  String grupoSeleccionado = gruposDocente.first;
+  String grupoSeleccionado = DatosTemporales.gruposDocente.first;
   int? alumnoAbierto;
 
   // ABRIR PERFIL
@@ -120,7 +119,7 @@ class _HomeDocenteState extends State<HomeDocente> {
   Widget build(BuildContext context) {
     // MOSTRAR LOS ALUMNOS DE PRUEBA DEL GRUPO
     final alumnosActuales =
-        alumnosPorGrupo[grupoSeleccionado] ?? [];
+        DatosTemporales.alumnosPorGrupo[grupoSeleccionado] ?? [];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
@@ -240,7 +239,7 @@ class _HomeDocenteState extends State<HomeDocente> {
 
                   // SELECTOR DE GRUPOS
                   SelectorGrupo(
-                    grupos: gruposDocente,
+                    grupos: DatosTemporales.gruposDocente,
                     grupoSeleccionado: grupoSeleccionado,
 
                     onChanged: (valor) {

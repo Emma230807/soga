@@ -9,8 +9,8 @@ class Tarea {
   String matricula;
   String fechaEntrega;
   bool completada;
-  final String instrucciones;
   String alumno;
+  String? firestoreId;
 
   Tarea({
     required this.idTarea,
@@ -22,8 +22,8 @@ class Tarea {
     required this.color,
     required this.matricula,
     required this.fechaEntrega,
-    this.instrucciones = "Sin Instrucciones",
     this.completada = false,
     required this.alumno,
+    this.firestoreId,
   });
 }

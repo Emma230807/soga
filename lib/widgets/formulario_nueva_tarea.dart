@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:soga/datasourses/datos_temporales.dart';
 import 'package:soga/widgets/selectorColores.dart';
 import 'package:soga/widgets/selector_fecha.dart';
-import 'package:soga/widgets/selector_hora.dart';
 import 'package:soga/widgets/selector_materia.dart';
 import 'package:soga/widgets/selector_prioridad.dart';
 
@@ -13,11 +13,74 @@ class FormularioNuevaTarea extends StatefulWidget {
 }
 
 class _FormularioNuevaTarea extends State<FormularioNuevaTarea> {
+  final TextEditingController tituloController = TextEditingController();
+  final TextEditingController descripcionController = TextEditingController();
+  bool guardando = false;
   String prioridadSeleccionada = 'Media';
   String? materiaSeleccionada;
   DateTime? fechaSeleccionada;
-  TimeOfDay? horaSeleccionada;
   Color colorSelec = Colors.purple;
+
+  Future<void> crearTarea() async {
+    if (guardando) return;
+
+    final titulo = tituloController.text.trim();
+    final materia = materiaSeleccionada?.trim();
+    final fecha = fechaSeleccionada;
+
+    if (titulo.isEmpty || materia == null || materia.isEmpty || fecha == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Completa título, materia y fecha')),
+      );
+      return;
+    }
+
+    setState(() => guardando = true);
+    try {
+      final idMateria = await DatosTemporales.obtenerIdMateriaSupabase(materia);
+      if (idMateria == null) {
+        throw Exception('La materia "$materia" no está registrada en Supabase');
+      }
+
+      final colores = <Color, String>{
+        Colors.purple: 'Morado',
+        Colors.red: 'Rojo',
+        Colors.blue: 'Azul',
+        Colors.green: 'Verde',
+        Colors.orange: 'Naranja',
+        Colors.yellow: 'Amarillo',
+      };
+
+      await DatosTemporales.guardarTareaSupabase(
+        titulo: titulo,
+        descripcion: descripcionController.text.trim(),
+        prioridad: prioridadSeleccionada,
+        fecha: fecha,
+        idMateria: idMateria,
+        color: colores[colorSelec] ?? 'Morado',
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tarea creada correctamente')),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo crear la tarea: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => guardando = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    tituloController.dispose();
+    descripcionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +129,24 @@ class _FormularioNuevaTarea extends State<FormularioNuevaTarea> {
 
               Text("Titulo", style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
+                controller: tituloController,
                 decoration: InputDecoration(
                   hintText: "¿Qué necesitas hacer?",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 10),
+
+              Text("Descripción", style: TextStyle(fontWeight: FontWeight.bold)),
+              TextField(
+                controller: descripcionController,
+                minLines: 3,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  hintText: "Describe lo que necesitas hacer",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -99,49 +178,14 @@ class _FormularioNuevaTarea extends State<FormularioNuevaTarea> {
               ),
               SizedBox(height: 10),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Fecha",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SelectorFecha(
-                          fechaSeleccionada: fechaSeleccionada,
-                          onSeleccionar: (fecha) {
-                            setState(() {
-                              fechaSeleccionada = fecha;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Hora",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SelectorHora(
-                          horaSeleccionada: horaSeleccionada,
-                          onSeleccionar: (hora) {
-                            setState(() {
-                              horaSeleccionada = hora;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              Text("Fecha", style: TextStyle(fontWeight: FontWeight.bold)),
+              SelectorFecha(
+                fechaSeleccionada: fechaSeleccionada,
+                onSeleccionar: (fecha) {
+                  setState(() {
+                    fechaSeleccionada = fecha;
+                  });
+                },
               ),
 
               SizedBox(height: 10),
@@ -164,8 +208,8 @@ class _FormularioNuevaTarea extends State<FormularioNuevaTarea> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 214, 202, 252),
                   ),
-                  onPressed: () {},
-                  child: Text("Crear tarea"),
+                  onPressed: guardando ? null : crearTarea,
+                  child: Text(guardando ? 'Guardando...' : 'Crear tarea'),
                 ),
               ),
             ],

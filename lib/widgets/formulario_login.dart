@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:soga/views/homeAlumno.dart';
 import 'package:soga/views/home_administrador.dart';
@@ -6,6 +5,7 @@ import 'package:soga/views/home_docente.dart';
 import 'package:soga/widgets/campo_login.dart';
 import 'package:soga/datasourses/datos_temporales.dart';
 import 'package:soga/models/usuario_sesion.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FormularioLogin extends StatefulWidget {
   const FormularioLogin({super.key});
@@ -20,117 +20,82 @@ class _FormularioLoginState extends State<FormularioLogin> {
 
   // MÉTODO PARA MOSTRAR MENSAJES
   void mostrarMensaje(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje)),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
-  // MÉTODO PARA INICIAR SESIÓN
-  Future<void> iniciarSesion() async {
-    String correo = correoController.text.trim();
-    String contrasena = contrasenaController.text;
+  bool _iniciandoSesion = false;
 
-    // VALIDAR CAMPOS VACÍOS
+  // Autenticacion real con Supabase Auth y perfil en PostgreSQL.
+  Future<void> iniciarSesion() async {
+    if (_iniciandoSesion) return;
+    final correo = correoController.text.trim();
+    final contrasena = contrasenaController.text;
+
     if (correo.isEmpty || contrasena.isEmpty) {
-      await mostrarRegistroExitoso(
-        context,
-        "Faltan datos",
-        Icons.cancel,
-        Colors.red,
+      mostrarMensaje('Ingresa tu correo y contraseña');
+      return;
+    }
+
+    setState(() => _iniciandoSesion = true);
+    try {
+      final usuario = await DatosTemporales.iniciarSesionSupabase(
+        correo,
+        contrasena,
       );
 
       if (!mounted) return;
-      return;
-    }
 
-    // VALIDAR CREDENCIALES
-    final usuario = DatosTemporales.iniciarSesion(
-      correo,
-      contrasena,
-    );
+      // PROBAR CONSULTA DE TAREAS DESDE SUPABASE
+      if (usuario.rol == RolUsuario.alumno) {
+        try {
+          final tareas = await DatosTemporales.obtenerTareasSupabase();
 
-    // COMPROBAR SI EXISTE EL USUARIO
-    if (usuario == null) {
-      mostrarMensaje('Correo o contraseña incorrectos');
-      return;
-    }
+          debugPrint('=== TAREAS DESDE SUPABASE ===');
+          debugPrint('Total de tareas: ${tareas.length}');
 
-    // IDENTIFICAR EL TIPO DE USUARIO
-    switch (usuario.rol) {
-
-      // DOCENTE
-      case RolUsuario.docente:
-        final docente = DatosTemporales.validarDocente(
-          correo,
-          contrasena,
-        );
-
-        if (docente == null) {
-          mostrarMensaje("No se encontró el docente");
-          return;
+          for (final tarea in tareas) {
+            debugPrint('ID: ${tarea['idTarea']}');
+            debugPrint('Título: ${tarea['titulo']}');
+            debugPrint('Prioridad: ${tarea['prioridad']}');
+            debugPrint('Matrícula: ${tarea['matricula']}');
+            debugPrint('Completada: ${tarea['completada']}');
+          }
+        } catch (e) {
+          debugPrint('Error al consultar tareas: $e');
         }
+      }
 
-        await mostrarRegistroExitoso(
-          context,
-          "Registro exitoso",
-          Icons.check_circle,
-          Colors.green,
-        );
+      if (!mounted) return;
 
-        if (!mounted) return;
+      Widget pantalla;
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeDocente(
-              docente: docente,
-              usuario: usuario,
-            ),
-          ),
-        );
-        break;
-
-      // ALUMNO
-      case RolUsuario.alumno:
-        await mostrarRegistroExitoso(
-          context,
-          "Registro exitoso",
-          Icons.check_circle,
-          Colors.green,
-        );
-
-        if (!mounted) return;
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeAlumno(
-              usuario: usuario,
-            ),
-          ),
-        );
-        break;
-
-      // ADMINISTRADOR
-      case RolUsuario.administrador:
-        await mostrarRegistroExitoso(
-          context,
-          "Registro exitoso",
-          Icons.check_circle,
-          Colors.green,
-        );
-
-        if (!mounted) return;
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeAdministrador(
-              usuario: usuario,
-            ),
-          ),
-        );
-        break;
+      switch (usuario.rol) {
+        case RolUsuario.docente:
+          pantalla = HomeDocente(
+            docente: DatosTemporales.docenteDesdeSesion(usuario),
+            usuario: usuario,
+          );
+          break;
+        case RolUsuario.alumno:
+          pantalla = HomeAlumno(usuario: usuario);
+          break;
+        case RolUsuario.administrador:
+          pantalla = HomeAdministrador(usuario: usuario);
+          break;
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => pantalla),
+      );
+    } on AuthException catch (e) {
+      if (mounted) mostrarMensaje('No se pudo iniciar sesión: ${e.message}');
+    } on PostgrestException catch (e) {
+      if (mounted) mostrarMensaje('No se pudo cargar el perfil: ${e.message}');
+    } catch (e) {
+      if (mounted) mostrarMensaje('Error al iniciar sesión: $e');
+    } finally {
+      if (mounted) setState(() => _iniciandoSesion = false);
     }
   }
 
@@ -167,9 +132,7 @@ class _FormularioLoginState extends State<FormularioLogin> {
       },
     );
 
-    await Future.delayed(
-      const Duration(seconds: 1),
-    );
+    await Future.delayed(const Duration(seconds: 1));
 
     if (context.mounted) {
       Navigator.of(context, rootNavigator: true).pop();
@@ -202,18 +165,12 @@ class _FormularioLoginState extends State<FormularioLogin> {
         children: [
           const Text(
             'Iniciar sesión',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
 
           const SizedBox(height: 15),
 
-          const Text(
-            'Correo',
-            style: TextStyle(fontSize: 16),
-          ),
+          const Text('Correo', style: TextStyle(fontSize: 16)),
 
           CampoLogin(
             texto: 'Ingresa tu correo',
@@ -223,10 +180,7 @@ class _FormularioLoginState extends State<FormularioLogin> {
 
           const SizedBox(height: 20),
 
-          const Text(
-            'Contraseña',
-            style: TextStyle(fontSize: 16),
-          ),
+          const Text('Contraseña', style: TextStyle(fontSize: 16)),
 
           CampoLogin(
             texto: 'Ingresa tu contraseña',
@@ -248,22 +202,16 @@ class _FormularioLoginState extends State<FormularioLogin> {
                 ),
               ),
 
-              onPressed: iniciarSesion,
+              onPressed: _iniciandoSesion ? null : iniciarSesion,
 
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Ingresar',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  Text('Ingresar', style: TextStyle(color: Colors.white)),
 
                   SizedBox(width: 8),
 
-                  Icon(
-                    Icons.arrow_forward,
-                    color: Colors.white,
-                  ),
+                  Icon(Icons.arrow_forward, color: Colors.white),
                 ],
               ),
             ),

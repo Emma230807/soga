@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:soga/models/alumno.dart';
 import 'package:soga/models/docente.dart';
 import 'package:soga/models/grupo.dart';
@@ -6,8 +9,144 @@ import 'package:soga/models/tarea.dart';
 import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/models/vinculacion_docente_alumno.dart';
 import 'package:soga/models/asesoria.dart';
+import 'package:soga/models/nota.dart';
 
 class DatosTemporales {
+  // Sesion vigente en Supabase. Las colecciones locales siguen disponibles
+  // temporalmente para las pantallas aun no migradas.
+  static UsuarioSesion? _sesionSupabase;
+  static UsuarioSesion? get sesionActual => _sesionSupabase;
+
+  static Future<UsuarioSesion> iniciarSesionSupabase(
+    String correo,
+    String contrasena,
+  ) async {
+    final client = Supabase.instance.client;
+    final auth = await client.auth.signInWithPassword(
+      email: correo.trim(),
+      password: contrasena,
+    );
+    final cuenta = auth.user;
+    if (cuenta == null) {
+      throw StateError('No se pudo iniciar sesion en Supabase Auth.');
+    }
+
+    try {
+      final perfil = await client
+          .from('usuario')
+          .select('idUsuario, nombreCompleto, correo, tipoUsuario')
+          .eq('auth_uid', cuenta.id)
+          .single();
+      final id = (perfil['idUsuario'] as num).toInt();
+      final tipo = perfil['tipoUsuario'] as String;
+      final RolUsuario rol;
+      String? matricula;
+      String? numeroEmpleadoProf;
+
+      switch (tipo) {
+        case 'ALUMNO':
+          rol = RolUsuario.alumno;
+          final alumno = await client
+              .from('alumno')
+              .select('matricula')
+              .eq('idUsuario', id)
+              .single();
+          matricula = alumno['matricula'] as String;
+          break;
+        case 'PROFESOR':
+          rol = RolUsuario.docente;
+          final profesor = await client
+              .from('profesor')
+              .select('numeroEmpleadoProf')
+              .eq('idUsuario', id)
+              .single();
+          numeroEmpleadoProf = profesor['numeroEmpleadoProf'] as String;
+          break;
+        case 'ADMINISTRADOR':
+          rol = RolUsuario.administrador;
+          final administrador = await client
+              .from('administrador')
+              .select('numeroEmpleado')
+              .eq('idUsuario', id)
+              .single();
+          if (administrador['numeroEmpleado'] == null) {
+            throw StateError('No se encontro el registro de administrador.');
+          }
+          break;
+        default:
+          throw StateError('Rol de usuario no reconocido: $tipo');
+      }
+
+      final sesion = UsuarioSesion(
+        id: id,
+        nombre: perfil['nombreCompleto'] as String,
+        correo: perfil['correo'] as String,
+        rol: rol,
+        matricula: matricula,
+        authUid: cuenta.id,
+        numeroEmpleadoProf: numeroEmpleadoProf,
+      );
+      _sesionSupabase = sesion;
+      return sesion;
+    } catch (_) {
+      _sesionSupabase = null;
+      await client.auth.signOut();
+      rethrow;
+    }
+  }
+
+  // Adaptador para la pantalla HomeDocente existente. Una vez migrado
+  // ese modulo, sus consultas deben usar numeroEmpleadoProf en PostgreSQL.
+  static Docente docenteDesdeSesion(UsuarioSesion sesion) {
+    if (sesion.rol != RolUsuario.docente || sesion.numeroEmpleadoProf == null) {
+      throw StateError('La sesion no corresponde a un profesor.');
+    }
+    return Docente(
+      id: sesion.id,
+      nombre: sesion.nombre,
+      correo: sesion.correo,
+      contrasena: '', // No se guardan credenciales en el modelo.
+    );
+  }
+
+  static Future<void> cerrarSesionSupabase() async {
+    await Supabase.instance.client.auth.signOut();
+    _sesionSupabase = null;
+  }
+
+  static Future<void> probarGuardadoTarea() async {
+    final usuario = FirebaseAuth.instance.currentUser;
+
+    if (usuario == null) {
+      throw Exception('No hay un usuario autenticado en Firebase');
+    }
+
+    final referencia = FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(usuario.uid)
+        .collection('tareas')
+        .doc('tarea_prueba_1');
+
+    await referencia.set({
+      'titulo': 'Primera tarea de SOGA',
+      'descripcion': 'Prueba de almacenamiento en Firestore',
+      'prioridad': 'Alta',
+      'fecha': Timestamp.fromDate(DateTime(2026, 11, 25)),
+      'completada': false,
+      'matricula': 'ALU-0002',
+    });
+
+    final resultado = await referencia.get(
+      const GetOptions(source: Source.server),
+    );
+
+    if (!resultado.exists) {
+      throw Exception('La tarea no se recuperó de Firestore');
+    }
+
+    debugPrint('Tarea guardada: ${resultado.data()}');
+  }
+
   static List<Asesoria> asesorias = [
     Asesoria(
       idAsesoria: 1,
@@ -81,9 +220,49 @@ class DatosTemporales {
     ),
   ];
 
+  // Notificaciones de prueba compartidas por la aplicación.
+  static const List<Map<String, String>> notificaciones = [
+    {
+      'titulo': 'Nueva tarea asignada',
+      'mensaje': 'El profesor de Matemáticas ha asignado una nueva tarea.',
+      'fecha': 'Hoy, 10:30 AM',
+    },
+    {
+      'titulo': 'Calificación disponible',
+      'mensaje': 'Tu calificación de Programación ya está disponible.',
+      'fecha': 'Hoy, 9:15 AM',
+    },
+    {
+      'titulo': 'Asesoría programada',
+      'mensaje': 'Tienes una asesoría de Matemáticas programada.',
+      'fecha': 'Ayer, 3:45 PM',
+    },
+    {
+      'titulo': 'Recordatorio de tarea',
+      'mensaje': 'La tarea de Base de Datos vence mañana.',
+      'fecha': 'Ayer, 12:00 PM',
+    },
+    {
+      'titulo': 'Aviso del docente',
+      'mensaje': 'El profesor de Desarrollo Móvil publicó un aviso.',
+      'fecha': '27 oct, 8:00 AM',
+    },
+  ];
+
   // ==========================================
   // LISTA DE DOCENTES
   // ==========================================
+
+  static const List<String> prioridades = ['Alta', 'Media', 'Baja'];
+
+  static const List<Color> coloresNota = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.yellow,
+  ];
 
   static final materias = [
     'Matemáticas',
@@ -421,6 +600,139 @@ class DatosTemporales {
     VinculacionDocenteAlumno(idDocente: 2, codigoAlumno: 'ALU-0004'),
   ];
 
+  // Una fuente de verdad para tareas: las tareas de los grupos y las de prueba.
+  // Los IDs 13..17 corresponden a tareas adicionales y no colisionan con 1..12.
+  static final List<Tarea> _tareasAdicionales = [
+    Tarea(
+      idTarea: 13,
+      titulo: "Entregar ensayo de Historia",
+      descripcion: "Redactar y entregar un ensayo de Historia",
+      prioridad: "Alta",
+      fecha: DateTime(2026, 11, 8),
+      idMateria: 3,
+      color: "Morado",
+      matricula: "ALU-0002",
+      alumno: "Ana Martínez",
+      fechaEntrega: "8 nov",
+    ),
+    Tarea(
+      idTarea: 14,
+      titulo: "Resolver ejercicios de cálculo",
+      descripcion: "Resolver los ejercicios de cálculo",
+      prioridad: "Alta",
+      fecha: DateTime(2026, 11, 10),
+      idMateria: 1,
+      color: "Morado",
+      matricula: "ALU-0002",
+      alumno: "Ana Martínez",
+      fechaEntrega: "10 nov",
+    ),
+    Tarea(
+      idTarea: 15,
+      titulo: "Preparar presentación de Química",
+      descripcion: "Preparar una presentación sobre Química",
+      prioridad: "Media",
+      fecha: DateTime(2026, 11, 12),
+      idMateria: 4,
+      color: "Verde",
+      matricula: "ALU-0002",
+      alumno: "Ana Martínez",
+      fechaEntrega: "12 nov",
+    ),
+    Tarea(
+      idTarea: 16,
+      titulo: "Revisar apuntes de Literatura",
+      descripcion: "Repasar los apuntes de Literatura",
+      prioridad: "Baja",
+      fecha: DateTime(2026, 11, 13),
+      idMateria: 5,
+      color: "Azul",
+      matricula: "ALU-0002",
+      alumno: "Ana Martínez",
+      fechaEntrega: "13 nov",
+    ),
+    Tarea(
+      idTarea: 17,
+      titulo: "Leer capítulo 1",
+      descripcion: "Leer el primer capítulo del libro",
+      prioridad: "Media",
+      fecha: DateTime(2026, 11, 7),
+      idMateria: 3,
+      color: "Morado",
+      matricula: "ALU-0002",
+      alumno: "Ana Martínez",
+      fechaEntrega: "7 nov",
+      completada: true,
+    ),
+  ];
+
+  static List<Tarea> obtenerTareas({String? matricula}) {
+    final todas = <Tarea>[
+      for (final alumnos in alumnosPorGrupo.values)
+        for (final alumno in alumnos) ...alumno.tareas,
+      ..._tareasAdicionales,
+    ];
+    if (matricula == null) return todas;
+    return todas.where((t) => t.matricula == matricula).toList();
+  }
+
+  static bool cambiarEstadoTarea(int idTarea) {
+    for (final tarea in obtenerTareas()) {
+      if (tarea.idTarea == idTarea) {
+        tarea.completada = !tarea.completada;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static bool eliminarTarea(int idTarea) {
+    final antesAdicionales = _tareasAdicionales.length;
+    _tareasAdicionales.removeWhere((t) => t.idTarea == idTarea);
+    if (_tareasAdicionales.length != antesAdicionales) return true;
+    for (final alumnos in alumnosPorGrupo.values) {
+      for (final alumno in alumnos) {
+        final antes = alumno.tareas.length;
+        alumno.tareas.removeWhere((t) => t.idTarea == idTarea);
+        if (alumno.tareas.length != antes) return true;
+      }
+    }
+    return false;
+  }
+
+  // Notas de prueba, almacenadas temporalmente en el mismo repositorio.
+  static final List<Nota> _notas = [
+    Nota(
+      id: 1,
+      titulo: 'Programación',
+      contenido: 'Repasar los widgets de Flutter para el examen.',
+      color: const Color(0xFFFFF4B8),
+      fechaCreacion: DateTime(2026, 10, 20),
+    ),
+    Nota(
+      id: 2,
+      titulo: 'Base de datos',
+      contenido: 'Terminar el diagrama entidad-relación.',
+      color: const Color(0xFFD5E8FF),
+      fechaCreacion: DateTime(2026, 10, 21),
+    ),
+    Nota(
+      id: 3,
+      titulo: 'Matemáticas',
+      contenido: 'Estudiar los ejercicios de cálculo.',
+      color: const Color(0xFFFAD5E4),
+      fechaCreacion: DateTime(2026, 10, 22),
+    ),
+  ];
+  static int _siguienteIdNota = 4;
+  static int generarIdNota() => _siguienteIdNota++;
+  static void agregarNota(Nota nota) => _notas.add(nota);
+  static List<Nota> obtenerNotas() => List.unmodifiable(_notas);
+
+  // Grupos compartidos con las pantallas del docente.
+  static List<String> get gruposDocente =>
+      List.unmodifiable(alumnosPorGrupo.keys);
+
   // ==========================================
   // VALIDAR DOCENTE
   // ==========================================
@@ -492,6 +804,12 @@ class DatosTemporales {
   // ==========================================
 
   static String? obtenerCodigoAlumno(String correo) {
+    final sesion = _sesionSupabase;
+    if (sesion != null &&
+        sesion.rol == RolUsuario.alumno &&
+        sesion.correo.toLowerCase() == correo.trim().toLowerCase()) {
+      return sesion.matricula;
+    }
     for (final cuenta in otrasCuentas) {
       if (cuenta['rol'] == RolUsuario.alumno &&
           cuenta['correo'].toString().toLowerCase() ==
@@ -616,5 +934,298 @@ class DatosTemporales {
         .map((vinculacion) => vinculacion.codigoAlumno)
         .toSet()
         .toList();
+  }
+  // =====================================================
+  // FIRESTORE — PRIMERA ETAPA: TAREAS DEL USUARIO ACTUAL
+  // =====================================================
+  // Los metodos anteriores permanecen intactos para que la UI existente
+  // siga funcionando mientras migramos los controladores a Future/Stream.
+  // Requiere sesion REAL de FirebaseAuth, no solo iniciarSesion() local.
+
+  static String get _uidFirebase {
+    final usuario = FirebaseAuth.instance.currentUser;
+    if (usuario == null) {
+      throw StateError('Inicia sesión en Firebase Authentication primero.');
+    }
+    return usuario.uid;
+  }
+
+  static CollectionReference<Map<String, dynamic>> get _tareasFirestore =>
+      FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(_uidFirebase)
+          .collection('tareas');
+
+  static Map<String, dynamic> _tareaParaFirestore(Tarea tarea) => {
+    'idTarea': tarea.idTarea,
+    'titulo': tarea.titulo,
+    'descripcion': tarea.descripcion,
+    'prioridad': tarea.prioridad,
+    'fecha': Timestamp.fromDate(tarea.fecha),
+    'idMateria': tarea.idMateria,
+    'color': tarea.color,
+    'matricula': tarea.matricula,
+    'alumno': tarea.alumno,
+    'fechaEntrega': tarea.fechaEntrega,
+    'completada': tarea.completada,
+  };
+
+  // Importa SOLO las tareas de la matrícula indicada al perfil Firebase
+  // autenticado. Úsalo una sola vez durante el desarrollo, sin datos reales.
+  // No utilizar para vincular identidades: más adelante la matrícula deberá
+  // pertenecer al uid según un perfil validado por el servidor.
+  static Future<int> importarTareasDePruebaFirestore({
+    required String matricula,
+  }) async {
+    final tareas = obtenerTareas(matricula: matricula);
+    final db = FirebaseFirestore.instance;
+    final batch = db.batch();
+    for (final tarea in tareas) {
+      batch.set(
+        _tareasFirestore.doc(tarea.idTarea.toString()),
+        _tareaParaFirestore(tarea),
+      );
+    }
+    await batch.commit();
+    return tareas.length;
+  }
+
+  // Datos crudos de Firestore; un controlador los convertirá a Tarea.
+  // Esto evita acoplar toda la UI a la migración de una sola vez.
+  static Future<List<Map<String, dynamic>>> obtenerTareasFirestore() async {
+    final consulta = await _tareasFirestore.get();
+    return consulta.docs
+        .map((doc) => {'docId': doc.id, ...doc.data()})
+        .toList();
+  }
+
+  static Stream<List<Map<String, dynamic>>> observarTareasFirestore() =>
+      _tareasFirestore.snapshots().map(
+        (consulta) => consulta.docs
+            .map((doc) => {'docId': doc.id, ...doc.data()})
+            .toList(),
+      );
+
+  static Future<void> guardarTareaFirestore(Tarea tarea) async {
+    await _tareasFirestore
+        .doc(tarea.idTarea.toString())
+        .set(_tareaParaFirestore(tarea));
+  }
+
+  static Future<void> establecerEstadoTareaFirestore(
+    int idTarea,
+    bool completada,
+  ) async {
+    await _tareasFirestore.doc(idTarea.toString()).update({
+      'completada': completada,
+    });
+  }
+
+  static Future<void> eliminarTareaFirestore(int idTarea) async {
+    await _tareasFirestore.doc(idTarea.toString()).delete();
+  }
+
+  // FIRESTORE: unica fuente para las tareas sincronizadas del usuario Firebase.
+  // No se confunden las matriculas con UID: Firestore usa el UID autenticado.
+  static Tarea _tareaDesdeDocumento(
+    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
+    final data = doc.data();
+    final fechaDato = data['fecha'];
+    final fecha = fechaDato is Timestamp ? fechaDato.toDate() : DateTime.now();
+    return Tarea(
+      idTarea: (data['idTarea'] as num?)?.toInt() ?? 0,
+      firestoreId: doc.id,
+      titulo: data['titulo'] as String? ?? 'Sin titulo',
+      descripcion: data['descripcion'] as String? ?? '',
+      prioridad: data['prioridad'] as String? ?? 'Media',
+      fecha: fecha,
+      idMateria: (data['idMateria'] as num?)?.toInt() ?? 0,
+      color: data['color'] as String? ?? 'Morado',
+      matricula: data['matricula'] as String? ?? '',
+      alumno: data['alumno'] as String? ?? '',
+      fechaEntrega:
+          data['fechaEntrega'] as String? ??
+          '${fecha.day}/${fecha.month}/${fecha.year}',
+      completada: data['completada'] as bool? ?? false,
+    );
+  }
+
+  static Stream<List<Tarea>> observarTareasUsuarioFirebase() {
+    return _tareasFirestore.snapshots().map((snapshot) {
+      final tareas = snapshot.docs.map(_tareaDesdeDocumento).toList();
+      tareas.sort((a, b) => a.fecha.compareTo(b.fecha));
+      return tareas;
+    });
+  }
+
+  static Future<void> actualizarEstadoTareaFirebase(Tarea tarea) async {
+    final id = tarea.firestoreId ?? tarea.idTarea.toString();
+    await _tareasFirestore.doc(id).update({'completada': !tarea.completada});
+  }
+
+  static Future<void> borrarTareaFirebase(Tarea tarea) async {
+    final id = tarea.firestoreId ?? tarea.idTarea.toString();
+    await _tareasFirestore.doc(id).delete();
+  }
+
+  static Future<List<Map<String, dynamic>>> obtenerTareasSupabase() async {
+    final supabase = Supabase.instance.client;
+
+    // 1. Obtener el usuario autenticado
+    final usuarioAuth = supabase.auth.currentUser;
+
+    if (usuarioAuth == null) {
+      throw Exception('No hay un usuario autenticado');
+    }
+
+    // 2. Obtener su perfil
+    final perfil = await supabase
+        .from('usuario')
+        .select('idUsuario, tipoUsuario')
+        .eq('auth_uid', usuarioAuth.id)
+        .single();
+
+    if (perfil['tipoUsuario'] != 'ALUMNO') {
+      throw Exception('La cuenta no corresponde a un alumno');
+    }
+
+    // 3. Obtener la matrícula del alumno autenticado
+    final alumno = await supabase
+        .from('alumno')
+        .select('matricula')
+        .eq('idUsuario', perfil['idUsuario'])
+        .single();
+
+    final matricula = alumno['matricula'] as String;
+
+    // 4. Consultar sus tareas en PostgreSQL
+    final resultado = await supabase
+        .from('tarea')
+        .select()
+        .eq('matricula', matricula)
+        .order('fecha', ascending: true);
+
+    return List<Map<String, dynamic>>.from(resultado);
+  }
+
+  static Future<void> cambiarEstadoTareaSupabase(
+    int idTarea,
+    bool completada,
+  ) async {
+    final supabase = Supabase.instance.client;
+
+    if (supabase.auth.currentUser == null) {
+      throw Exception('No hay un usuario autenticado');
+    }
+
+    final resultado = await supabase
+        .from('tarea')
+        .update({'completada': completada})
+        .eq('idTarea', idTarea)
+        .select('idTarea');
+
+    if (resultado.isEmpty) {
+      throw Exception(
+        'No se encontró la tarea o no tienes permiso para actualizarla',
+      );
+    }
+  }
+
+  static Future<void> eliminarTareaSupabase(int idTarea) async {
+    final supabase = Supabase.instance.client;
+
+    if (supabase.auth.currentUser == null) {
+      throw Exception('No hay un usuario autenticado');
+    }
+
+    final resultado = await supabase
+        .from('tarea')
+        .delete()
+        .eq('idTarea', idTarea)
+        .select('idTarea');
+
+    if (resultado.isEmpty) {
+      throw Exception(
+        'No se encontró la tarea o no tienes permiso para eliminarla',
+      );
+    }
+  }
+
+  static Future<void> guardarTareaSupabase({
+    required String titulo,
+    required String descripcion,
+    required String prioridad,
+    required DateTime fecha,
+    required int idMateria,
+    required String color,
+  }) async {
+    final supabase = Supabase.instance.client;
+
+    final usuarioAuth = supabase.auth.currentUser;
+
+    if (usuarioAuth == null) {
+      throw Exception('No hay un usuario autenticado');
+    }
+
+    final perfil = await supabase
+        .from('usuario')
+        .select('idUsuario, tipoUsuario')
+        .eq('auth_uid', usuarioAuth.id)
+        .single();
+
+    if (perfil['tipoUsuario'] != 'ALUMNO') {
+      throw Exception('Solo los alumnos pueden crear tareas');
+    }
+
+    final alumno = await supabase
+        .from('alumno')
+        .select('matricula')
+        .eq('idUsuario', perfil['idUsuario'])
+        .single();
+
+    final matricula = alumno['matricula'] as String;
+
+    if (titulo.trim().isEmpty) {
+      throw Exception('El título es obligatorio');
+    }
+
+    if (idMateria <= 0) {
+      throw Exception('Selecciona una materia válida');
+    }
+
+    final prioridadSQL = prioridad.trim().toUpperCase();
+
+    if (!['ALTA', 'MEDIA', 'BAJA'].contains(prioridadSQL)) {
+      throw Exception('Prioridad no válida');
+    }
+
+    await supabase.from('tarea').insert({
+      'titulo': titulo.trim(),
+      'descripcion': descripcion.trim(),
+      'prioridad': prioridadSQL,
+      'fecha':
+          '${fecha.year.toString().padLeft(4, '0')}-'
+          '${fecha.month.toString().padLeft(2, '0')}-'
+          '${fecha.day.toString().padLeft(2, '0')}',
+      'idMateria': idMateria,
+      'color': color,
+      'matricula': matricula,
+      'completada': false,
+    });
+
+    debugPrint('Tarea guardada correctamente en Supabase');
+  }
+
+  static Future<int?> obtenerIdMateriaSupabase(String nombre) async {
+    final resultado = await Supabase.instance.client
+        .from('materia')
+        .select('idMateria')
+        .ilike('nombre', nombre.trim())
+        .limit(1);
+
+    if (resultado.isEmpty) return null;
+
+    return (resultado.first['idMateria'] as num).toInt();
   }
 }

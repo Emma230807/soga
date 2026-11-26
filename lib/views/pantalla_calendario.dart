@@ -1,3 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:soga/datasourses/datos_temporales.dart';
+import 'package:soga/models/tarea.dart';
 
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -12,12 +15,14 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-
   // Controlador del calendario
   final CalendarioController controller = CalendarioController();
 
   // Tareas agrupadas por fecha
   late final Map<DateTime, List<String>> tareasCalendario;
+
+  late final Stream<List<Tarea>> _tareasFirebase =
+      DatosTemporales.observarTareasUsuarioFirebase();
 
   // Formato del calendario
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -36,18 +41,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // Obtener las tareas correspondientes a un día
   List<String> obtenerTareas(DateTime dia) {
-    DateTime fecha = DateTime(
-      dia.year,
-      dia.month,
-      dia.day,
-    );
+    DateTime fecha = DateTime(dia.year, dia.month, dia.day);
 
     return tareasCalendario[fecha] ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
-
     // Tareas del día seleccionado
     List<String> tareasDelDia = obtenerTareas(_selectedDay);
 
@@ -58,134 +58,160 @@ class _CalendarScreenState extends State<CalendarScreen> {
         foregroundColor: Colors.white,
       ),
 
-      body: Column(
-        children: [
+      body: StreamBuilder<List<Tarea>>(
+        stream: FirebaseAuth.instance.currentUser == null
+            ? null
+            : _tareasFirebase,
+        builder: (context, snapshot) {
+          if (snapshot.hasError)
+            return Center(child: Text('Error de Firestore: ${snapshot.error}'));
+          if (FirebaseAuth.instance.currentUser != null && !snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final eventos = <DateTime, List<String>>{};
+          if (FirebaseAuth.instance.currentUser != null) {
+            for (final tarea in snapshot.data ?? <Tarea>[]) {
+              if (tarea.completada) continue;
+              final dia = DateTime(
+                tarea.fecha.year,
+                tarea.fecha.month,
+                tarea.fecha.day,
+              );
+              eventos.putIfAbsent(dia, () => []).add(tarea.titulo);
+            }
+          } else {
+            eventos.addAll(tareasCalendario);
+          }
+          List<String> tareasDe(DateTime dia) =>
+              eventos[DateTime(dia.year, dia.month, dia.day)] ?? [];
+          final tareasDelDia = tareasDe(_selectedDay);
+          return Column(
+            children: [
+              // CALENDARIO
+              TableCalendar<String>(
+                locale: 'es_MX',
 
-          // CALENDARIO
-          TableCalendar<String>(
-            locale: 'es_MX',
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2030, 12, 31),
+                focusedDay: _focusedDay,
 
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: _focusedDay,
+                startingDayOfWeek: StartingDayOfWeek.monday,
 
-            startingDayOfWeek: StartingDayOfWeek.monday,
+                // Día seleccionado
+                selectedDayPredicate: (day) {
+                  return isSameDay(_selectedDay, day);
+                },
 
-            // Día seleccionado
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
+                // Cuando el usuario selecciona un día
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
+                },
 
-            // Cuando el usuario selecciona un día
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
-            },
+                // Obtener tareas y marcar fechas
+                eventLoader: tareasDe,
 
-            // Obtener tareas y marcar fechas
-            eventLoader: obtenerTareas,
+                // Formato del calendario
+                calendarFormat: _calendarFormat,
 
-            // Formato del calendario
-            calendarFormat: _calendarFormat,
+                availableCalendarFormats: const {
+                  CalendarFormat.month: 'Mes',
+                  CalendarFormat.twoWeeks: '2 semanas',
+                  CalendarFormat.week: 'Semana',
+                },
 
-            availableCalendarFormats: const {
-              CalendarFormat.month: 'Mes',
-              CalendarFormat.twoWeeks: '2 semanas',
-              CalendarFormat.week: 'Semana',
-            },
+                onFormatChanged: (format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                },
 
-            onFormatChanged: (format) {
-              setState(() {
-                _calendarFormat = format;
-              });
-            },
+                // Cambiar de mes
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
+                },
 
-            // Cambiar de mes
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
-            },
+                // Estilos
+                calendarStyle: const CalendarStyle(
+                  todayDecoration: BoxDecoration(
+                    color: Colors.orangeAccent,
+                    shape: BoxShape.circle,
+                  ),
 
-            // Estilos
-            calendarStyle: const CalendarStyle(
-              todayDecoration: BoxDecoration(
-                color: Colors.orangeAccent,
-                shape: BoxShape.circle,
-              ),
+                  selectedDecoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    shape: BoxShape.circle,
+                  ),
 
-              selectedDecoration: BoxDecoration(
-                color: Colors.blueAccent,
-                shape: BoxShape.circle,
-              ),
+                  markerDecoration: BoxDecoration(
+                    color: Colors.deepPurple,
+                    shape: BoxShape.circle,
+                  ),
 
-              markerDecoration: BoxDecoration(
-                color: Colors.deepPurple,
-                shape: BoxShape.circle,
-              ),
+                  outsideDaysVisible: false,
+                ),
 
-              outsideDaysVisible: false,
-            ),
-
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: true,
-              titleCentered: true,
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // FECHA SELECCIONADA
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Tareas del ${DateFormat('d MMM', 'es_MX').format(_selectedDay)}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                headerStyle: const HeaderStyle(
+                  formatButtonVisible: true,
+                  titleCentered: true,
                 ),
               ),
-            ),
-          ),
 
-          const SizedBox(height: 15),
+              const SizedBox(height: 20),
 
-          // LISTA DE TAREAS
-          Expanded(
-            child: tareasDelDia.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No hay tareas pendientes para este día',
-                      style: TextStyle(fontSize: 16),
+              // FECHA SELECCIONADA
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Tareas del ${DateFormat('d MMM', 'es_MX').format(_selectedDay)}',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                  )
-                : ListView.builder(
-                    itemCount: tareasDelDia.length,
-
-                    itemBuilder: (context, index) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 5,
-                        ),
-
-                        child: ListTile(
-                          leading: const Icon(
-                            Icons.assignment,
-                            color: Colors.blueAccent,
-                          ),
-
-                          title: Text(
-                            tareasDelDia[index],
-                          ),
-                        ),
-                      );
-                    },
                   ),
-          ),
-        ],
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              // LISTA DE TAREAS
+              Expanded(
+                child: tareasDelDia.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No hay tareas pendientes para este día',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: tareasDelDia.length,
+
+                        itemBuilder: (context, index) {
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 5,
+                            ),
+
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.assignment,
+                                color: Colors.blueAccent,
+                              ),
+
+                              title: Text(tareasDelDia[index]),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
