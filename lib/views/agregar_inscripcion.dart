@@ -1,6 +1,11 @@
+import 'package:soga/datasourses/grupos_supabase.dart';
+import 'package:soga/datasourses/materias_supabase.dart';
+import 'package:soga/datasourses/profesores_supabase.dart';
+import 'package:soga/models/grupo.dart';
 import 'package:flutter/material.dart';
-import 'package:soga/datasourses/datos_temporales.dart';
 import 'package:soga/widgets/encabezado_soga.dart';
+import 'package:soga/datasourses/inscripciones_supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PantallaAgregarInscripcion extends StatefulWidget {
   const PantallaAgregarInscripcion({super.key});
@@ -12,22 +17,103 @@ class PantallaAgregarInscripcion extends StatefulWidget {
 
 class _PantallaAgregarInscripcionState
     extends State<PantallaAgregarInscripcion> {
-  String? materiaSeleccionada;
+  int? materiaSeleccionada;
+  String? profesorSeleccionado;
+  String? grupoSeleccionado;
 
-  final docentes = DatosTemporales.docentes;
+  List<Map<String, dynamic>> docentes = [];
+  List<Map<String, dynamic>> materias = [];
+  List<Grupo> grupos = [];
 
-  final grupos = DatosTemporales.grupos;
+  bool cargando = true;
+  bool guardando = false;
 
-  final List<String> materias = [
-    'Matemáticas',
-    'Programación',
-    'Base de Datos',
-    'Inglés',
-  ];
+  String? errorDatos;
+  @override
+  void initState() {
+    super.initState();
+    cargarDatos();
+  }
+
+  Future<void> cargarDatos() async {
+    try {
+      final listaGrupos = await GruposSupabase.obtenerGrupos();
+
+      final listaMaterias = await MateriasSupabase.obtenerMaterias();
+
+      final listaDocentes = await ProfesoresSupabase.obtenerProfesores();
+
+      if (!mounted) return;
+
+      setState(() {
+        grupos = listaGrupos;
+        materias = listaMaterias;
+        docentes = listaDocentes;
+        cargando = false;
+        errorDatos = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        cargando = false;
+        errorDatos = 'Error al cargar los datos';
+      });
+
+      debugPrint('Error: $e');
+      mostrarMensaje(errorDatos!);
+    }
+  }
+
+  Future<void> guardarInscripcion() async {
+    if (guardando || cargando) return;
+
+    if (materiaSeleccionada == null ||
+        profesorSeleccionado == null ||
+        grupoSeleccionado == null) {
+      mostrarMensaje('Selecciona todos los campos');
+      return;
+    }
+
+    setState(() {
+      guardando = true;
+    });
+
+    try {
+      await InscripcionesSupabase.registrarAsignacion(
+        idMateria: materiaSeleccionada!,
+        numeroEmpleado: profesorSeleccionado!,
+        idGrupo: grupoSeleccionado!,
+      );
+
+      if (!mounted) return;
+
+      mostrarMensaje('Inscripción registrada correctamente');
+    } on PostgrestException catch (e) {
+      if (!mounted) return;
+
+      mostrarMensaje('Error: ${e.message}');
+    } catch (e) {
+      if (!mounted) return;
+
+      mostrarMensaje('Error al registrar la inscripción');
+      debugPrint('Error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          guardando = false;
+        });
+      }
+    }
+  }
+
+  void mostrarMensaje(String mensaje) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
+  }
 
   @override
   Widget build(BuildContext context) {
-    String? materiaSeleccionada;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
 
@@ -73,7 +159,7 @@ class _PantallaAgregarInscripcionState
 
                         const SizedBox(height: 8),
 
-                        DropdownButtonFormField<String>(
+                        DropdownButtonFormField<int>(
                           initialValue: materiaSeleccionada,
                           hint: const Text("Selecciona una materia"),
                           isExpanded: true,
@@ -92,17 +178,19 @@ class _PantallaAgregarInscripcionState
                           ),
 
                           items: materias.map((materia) {
-                            return DropdownMenuItem<String>(
-                              value: materia,
-                              child: Text(materia),
+                            return DropdownMenuItem<int>(
+                              value: materia['idMateria'],
+                              child: Text(materia['nombre']),
                             );
                           }).toList(),
 
-                          onChanged: (valor) {
-                            setState(() {
-                              materiaSeleccionada = valor;
-                            });
-                          },
+                          onChanged: cargando || guardando
+                              ? null
+                              : (valor) {
+                                  setState(() {
+                                    materiaSeleccionada = valor;
+                                  });
+                                },
                         ),
 
                         const SizedBox(height: 30),
@@ -115,7 +203,7 @@ class _PantallaAgregarInscripcionState
                         const SizedBox(height: 8),
 
                         DropdownButtonFormField<String>(
-                          initialValue: materiaSeleccionada,
+                          initialValue: profesorSeleccionado,
                           hint: const Text("Selecciona un Profesor"),
                           isExpanded: true,
 
@@ -134,16 +222,18 @@ class _PantallaAgregarInscripcionState
 
                           items: docentes.map((docente) {
                             return DropdownMenuItem<String>(
-                              value: docente.nombre,
-                              child: Text(docente.nombre),
+                              value: docente['numeroEmpleadoProf'],
+                              child: Text(docente['nombre']),
                             );
                           }).toList(),
 
-                          onChanged: (valor) {
-                            setState(() {
-                              materiaSeleccionada = valor;
-                            });
-                          },
+                          onChanged: cargando || guardando
+                              ? null
+                              : (valor) {
+                                  setState(() {
+                                    profesorSeleccionado = valor;
+                                  });
+                                },
                         ),
 
                         const SizedBox(height: 30),
@@ -156,7 +246,7 @@ class _PantallaAgregarInscripcionState
                         const SizedBox(height: 8),
 
                         DropdownButtonFormField<String>(
-                          initialValue: materiaSeleccionada,
+                          initialValue: grupoSeleccionado,
                           hint: const Text("Selecciona un Grupo"),
                           isExpanded: true,
 
@@ -182,11 +272,13 @@ class _PantallaAgregarInscripcionState
                             );
                           }).toList(),
 
-                          onChanged: (valor) {
-                            setState(() {
-                              materiaSeleccionada = valor;
-                            });
-                          },
+                          onChanged: cargando || guardando
+                              ? null
+                              : (valor) {
+                                  setState(() {
+                                    grupoSeleccionado = valor;
+                                  });
+                                },
                         ),
                       ],
                     ),
@@ -200,7 +292,9 @@ class _PantallaAgregarInscripcionState
                     height: 50,
 
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: guardando || cargando || errorDatos != null
+                          ? null
+                          : guardarInscripcion,
 
                       icon: const Icon(Icons.save_outlined),
                       label: const Text('Guardar inscripcion'),

@@ -42,6 +42,7 @@ class DatosTemporales {
       final RolUsuario rol;
       String? matricula;
       String? numeroEmpleadoProf;
+      String? numeroEmpleadoAdmin;
 
       switch (tipo) {
         case 'ALUMNO':
@@ -64,17 +65,18 @@ class DatosTemporales {
           break;
         case 'ADMINISTRADOR':
           rol = RolUsuario.administrador;
+
           final administrador = await client
               .from('administrador')
               .select('numeroEmpleado')
               .eq('idUsuario', id)
               .single();
-          if (administrador['numeroEmpleado'] == null) {
-            throw StateError('No se encontro el registro de administrador.');
-          }
+
+          numeroEmpleadoAdmin = administrador['numeroEmpleado'] as String;
+
           break;
         default:
-          throw StateError('Rol de usuario no reconocido: $tipo');
+          throw Exception('Tipo de usuario no reconocido');
       }
 
       final sesion = UsuarioSesion(
@@ -85,6 +87,7 @@ class DatosTemporales {
         matricula: matricula,
         authUid: cuenta.id,
         numeroEmpleadoProf: numeroEmpleadoProf,
+        numeroEmpleadoAdmin: numeroEmpleadoAdmin,
       );
       _sesionSupabase = sesion;
       return sesion;

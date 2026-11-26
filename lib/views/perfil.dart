@@ -1,19 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:soga/models/usuario_sesion.dart';
+import 'package:soga/datasourses/datos_temporales.dart';
 import 'package:soga/datasourses/datos_temporales.dart';
 
 class PantallaPerfil extends StatelessWidget {
   final UsuarioSesion usuario;
 
-  const PantallaPerfil({
-    super.key,
-    required this.usuario,
-  });
+  const PantallaPerfil({super.key, required this.usuario});
 
   @override
   Widget build(BuildContext context) {
-
     String rol = "";
     String identificador = "";
     String etiquetaIdentificador = "ID de usuario";
@@ -22,20 +18,20 @@ class PantallaPerfil extends StatelessWidget {
     switch (usuario.rol) {
       case RolUsuario.alumno:
         rol = "Alumno";
-        etiquetaIdentificador = "Código de alumno";
-        identificador =
-            DatosTemporales.obtenerCodigoAlumno(usuario.correo)
-                ?? "No asignado";
+        etiquetaIdentificador = "Matrícula";
+        identificador = usuario.matricula ?? "No asignado";
         break;
 
       case RolUsuario.docente:
         rol = "Docente";
-        identificador = usuario.id.toString();
+        etiquetaIdentificador = "Número de empleado";
+        identificador = usuario.numeroEmpleadoProf ?? "No asignado";
         break;
 
       case RolUsuario.administrador:
         rol = "Administrador";
-        identificador = usuario.id.toString();
+        etiquetaIdentificador = "Número de empleado";
+        identificador = usuario.numeroEmpleadoAdmin ?? "No asignado";
         break;
     }
 
@@ -47,10 +43,7 @@ class PantallaPerfil extends StatelessWidget {
         centerTitle: true,
         title: const Text(
           "Mi perfil",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         leading: Container(
           margin: const EdgeInsets.all(8),
@@ -71,7 +64,6 @@ class PantallaPerfil extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             // ENCABEZADO
             Container(
               width: double.infinity,
@@ -88,11 +80,7 @@ class PantallaPerfil extends StatelessWidget {
                   const CircleAvatar(
                     radius: 42,
                     backgroundColor: Colors.white24,
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 48,
-                    ),
+                    child: Icon(Icons.person, color: Colors.white, size: 48),
                   ),
 
                   const SizedBox(height: 15),
@@ -111,10 +99,7 @@ class PantallaPerfil extends StatelessWidget {
 
                   Text(
                     rol,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Colors.white70,
-                    ),
+                    style: const TextStyle(fontSize: 15, color: Colors.white70),
                   ),
                 ],
               ),
@@ -127,7 +112,6 @@ class PantallaPerfil extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   const Text(
                     "INFORMACIÓN PERSONAL",
                     style: TextStyle(
@@ -157,11 +141,7 @@ class PantallaPerfil extends StatelessWidget {
                     identificador,
                   ),
 
-                  datoPerfil(
-                    Icons.school_outlined,
-                    "Tipo de usuario",
-                    rol,
-                  ),
+                  datoPerfil(Icons.school_outlined, "Tipo de usuario", rol),
                 ],
               ),
             ),
@@ -171,11 +151,7 @@ class PantallaPerfil extends StatelessWidget {
     );
   }
 
-  Widget datoPerfil(
-    IconData icono,
-    String etiqueta,
-    String valor,
-  ) {
+  Widget datoPerfil(IconData icono, String etiqueta, String valor) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 12),
@@ -194,10 +170,7 @@ class PantallaPerfil extends StatelessWidget {
               color: const Color(0xFFECE9FF),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icono,
-              color: Colors.deepPurple,
-            ),
+            child: Icon(icono, color: Colors.deepPurple),
           ),
 
           const SizedBox(width: 15),
@@ -208,10 +181,7 @@ class PantallaPerfil extends StatelessWidget {
               children: [
                 Text(
                   etiqueta,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
 
                 const SizedBox(height: 5),

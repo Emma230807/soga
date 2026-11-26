@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:soga/datasourses/datos_temporales.dart';
 import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/views/agregar_docentes.dart';
 import 'package:soga/views/agregar_inscripcion.dart';
@@ -64,12 +65,24 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
   }
 
   // CERRAR SESIÓN
-  void cerrarSesion() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const Login()),
-      (route) => false,
-    );
+  Future<void> cerrarSesion() async {
+    try {
+      await DatosTemporales.cerrarSesionSupabase();
+
+      if (!mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const Login()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Error al cerrar sesión')));
+    }
   }
 
   // AGREGAR DOCENTE

@@ -8,6 +8,8 @@ class UsuarioSesion {
   final String? matricula;
   final String? authUid;
   final String? numeroEmpleadoProf;
+  final String? numeroEmpleadoAdmin;
+
 
   const UsuarioSesion({
     required this.id,
@@ -17,5 +19,6 @@ class UsuarioSesion {
     this.matricula,
     this.authUid,
     this.numeroEmpleadoProf,
+    this.numeroEmpleadoAdmin,
   });
 }

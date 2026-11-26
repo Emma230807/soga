@@ -1,13 +1,119 @@
 import 'package:flutter/material.dart';
+import 'package:soga/datasourses/administradores_supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PantallaFormularioAdmin extends StatelessWidget {
+class PantallaFormularioAdmin extends StatefulWidget {
   const PantallaFormularioAdmin({super.key});
+
+  @override
+  State<PantallaFormularioAdmin> createState() =>
+      _PantallaFormularioAdminState();
+}
+
+class _PantallaFormularioAdminState extends State<PantallaFormularioAdmin> {
+  final nombreController = TextEditingController();
+  final numeroEmpleadoController = TextEditingController();
+  final correoController = TextEditingController();
+  final contrasenaController = TextEditingController();
+  final confirmarContrasenaController = TextEditingController();
+
+  bool guardando = false;
+
+  @override
+  void dispose() {
+    nombreController.dispose();
+    numeroEmpleadoController.dispose();
+    correoController.dispose();
+    contrasenaController.dispose();
+    confirmarContrasenaController.dispose();
+    super.dispose();
+  }
+
+  Future<void> guardarAdministrador() async {
+    if (guardando) return;
+
+    final nombre = nombreController.text.trim();
+    final numeroEmpleado = numeroEmpleadoController.text.trim();
+    final correo = correoController.text.trim();
+    final contrasena = contrasenaController.text;
+    final confirmar = confirmarContrasenaController.text;
+
+    if (nombre.isEmpty ||
+        numeroEmpleado.isEmpty ||
+        correo.isEmpty ||
+        contrasena.trim().isEmpty ||
+        confirmar.trim().isEmpty) {
+      mostrarMensaje('Completa todos los campos');
+      return;
+    }
+
+    if (contrasena.length < 8) {
+      mostrarMensaje('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    if (contrasena != confirmar) {
+      mostrarMensaje('Las contraseñas no coinciden');
+      return;
+    }
+
+    setState(() {
+      guardando = true;
+    });
+
+    try {
+      await AdministradoresSupabase.registrarAdministrador(
+        nombre: nombre,
+        numeroEmpleado: numeroEmpleado,
+        correo: correo,
+        contrasena: contrasena,
+      );
+
+      if (!mounted) return;
+
+      nombreController.clear();
+      numeroEmpleadoController.clear();
+      correoController.clear();
+      contrasenaController.clear();
+      confirmarContrasenaController.clear();
+
+      mostrarMensaje('Administrador registrado correctamente');
+    } on FunctionException catch (e) {
+      if (!mounted) return;
+
+      debugPrint('Código: ${e.status}');
+      debugPrint('Detalles: ${e.details}');
+
+      final detalles = e.details;
+
+      mostrarMensaje(
+        detalles is Map
+            ? '${detalles['mensaje'] ?? 'Error al registrar'}'
+            : 'Error al registrar: ${e.status}',
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      debugPrint('Error: $e');
+      mostrarMensaje('Error al registrar administrador');
+    } finally {
+      if (mounted) {
+        setState(() {
+          guardando = false;
+        });
+      }
+    }
+  }
+
+  void mostrarMensaje(String mensaje) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2FF),
-
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,7 +198,6 @@ class PantallaFormularioAdmin extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(18),
                     ),
-
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -105,6 +210,7 @@ class PantallaFormularioAdmin extends StatelessWidget {
                         const SizedBox(height: 8),
 
                         TextFormField(
+                          controller: nombreController,
                           decoration: InputDecoration(
                             hintText: 'Ej. María López',
                             prefixIcon: const Icon(
@@ -128,33 +234,11 @@ class PantallaFormularioAdmin extends StatelessWidget {
                         const SizedBox(height: 8),
 
                         TextFormField(
+                          controller: numeroEmpleadoController,
                           decoration: InputDecoration(
                             hintText: 'Ej. ADM-001',
                             prefixIcon: const Icon(
                               Icons.badge_outlined,
-                              color: Colors.deepPurple,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // USUARIO
-                        const Text(
-                          'Usuario',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        TextFormField(
-                          decoration: InputDecoration(
-                            hintText: 'Ej. MariaL',
-                            prefixIcon: const Icon(
-                              Icons.account_circle_outlined,
                               color: Colors.deepPurple,
                             ),
                             border: OutlineInputBorder(
@@ -174,6 +258,7 @@ class PantallaFormularioAdmin extends StatelessWidget {
                         const SizedBox(height: 8),
 
                         TextFormField(
+                          controller: correoController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             hintText: 'administrador@correo.com',
@@ -198,6 +283,7 @@ class PantallaFormularioAdmin extends StatelessWidget {
                         const SizedBox(height: 8),
 
                         TextFormField(
+                          controller: contrasenaController,
                           obscureText: true,
                           decoration: InputDecoration(
                             hintText: 'Ingresa una contraseña',
@@ -222,6 +308,7 @@ class PantallaFormularioAdmin extends StatelessWidget {
                         const SizedBox(height: 8),
 
                         TextFormField(
+                          controller: confirmarContrasenaController,
                           obscureText: true,
                           decoration: InputDecoration(
                             hintText: 'Repite la contraseña',
@@ -276,12 +363,9 @@ class PantallaFormularioAdmin extends StatelessWidget {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
-
+                      onPressed: guardando ? null : guardarAdministrador,
                       icon: const Icon(Icons.save_outlined),
-
                       label: const Text('Guardar administrador'),
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurple,
                         foregroundColor: Colors.white,
