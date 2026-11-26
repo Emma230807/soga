@@ -1228,4 +1228,223 @@ class DatosTemporales {
 
     return (resultado.first['idMateria'] as num).toInt();
   }
+
+  static Future<List<Map<String, dynamic>>> obtenerNotasSupabase() async {
+    final supabase = Supabase.instance.client;
+
+    // 1. Verificar la sesión
+    final usuarioAuth = supabase.auth.currentUser;
+
+    if (usuarioAuth == null) {
+      throw Exception('No hay un usuario autenticado');
+    }
+
+    // 2. Obtener el perfil del usuario
+    final perfil = await supabase
+        .from('usuario')
+        .select('idUsuario, tipoUsuario')
+        .eq('auth_uid', usuarioAuth.id)
+        .single();
+
+    if (perfil['tipoUsuario'] != 'ALUMNO') {
+      throw Exception('La cuenta no corresponde a un alumno');
+    }
+
+    // 3. Obtener la matrícula del alumno
+    final alumno = await supabase
+        .from('alumno')
+        .select('matricula')
+        .eq('idUsuario', perfil['idUsuario'])
+        .single();
+
+    final matricula = alumno['matricula'] as String;
+
+    // 4. Consultar las notas desde PostgreSQL
+    final resultado = await supabase
+        .from('nota')
+        .select('idNota, titulo, contenido, color, fechaCreacion, matricula')
+        .eq('matricula', matricula)
+        .order('fechaCreacion', ascending: false);
+
+    return List<Map<String, dynamic>>.from(resultado);
+  }
+
+  static Future<String> _matriculaNotasAutenticada() async {
+    final supabase = Supabase.instance.client;
+    final auth = supabase.auth.currentUser;
+    if (auth == null) throw StateError('Inicia sesión primero');
+
+    final perfil = await supabase
+        .from('usuario')
+        .select('idUsuario, tipoUsuario')
+        .eq('auth_uid', auth.id)
+        .single();
+    if (perfil['tipoUsuario'] != 'ALUMNO') {
+      throw StateError('Esta cuenta no corresponde a un alumno');
+    }
+    final alumno = await supabase
+        .from('alumno')
+        .select('matricula')
+        .eq('idUsuario', perfil['idUsuario'])
+        .single();
+    return alumno['matricula'] as String;
+  }
+
+  static String _colorNotaBD(Color color) =>
+      '#${color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
+
+  static Future<void> guardarNotaSupabase({
+    required String titulo,
+    required String contenido,
+    required Color color,
+  }) async {
+    if (titulo.trim().isEmpty || contenido.trim().isEmpty) {
+      throw ArgumentError('Completa el título y el contenido');
+    }
+    final matricula = await _matriculaNotasAutenticada();
+    await Supabase.instance.client.from('nota').insert({
+      'titulo': titulo.trim(),
+      'contenido': contenido.trim(),
+      'color': _colorNotaBD(color),
+      'matricula': matricula,
+    });
+  }
+
+  static Future<void> actualizarNotaSupabase({
+    required int idNota,
+    required String titulo,
+    required String contenido,
+    required Color color,
+  }) async {
+    if (titulo.trim().isEmpty || contenido.trim().isEmpty) {
+      throw ArgumentError('Completa el título y el contenido');
+    }
+    final matricula = await _matriculaNotasAutenticada();
+    final resultado = await Supabase.instance.client
+        .from('nota')
+        .update({
+          'titulo': titulo.trim(),
+          'contenido': contenido.trim(),
+          'color': _colorNotaBD(color),
+        })
+        .eq('idNota', idNota)
+        .eq('matricula', matricula)
+        .select('idNota');
+    if (resultado.isEmpty) {
+      throw StateError('No se encontró la nota o no tienes permiso');
+    }
+  }
+
+  static Future<void> eliminarNotaSupabase(int idNota) async {
+    final matricula = await _matriculaNotasAutenticada();
+    final resultado = await Supabase.instance.client
+        .from('nota')
+        .delete()
+        .eq('idNota', idNota)
+        .eq('matricula', matricula)
+        .select('idNota');
+    if (resultado.isEmpty) {
+      throw StateError('No se encontró la nota o no tienes permiso');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>>
+  obtenerNotificacionesSupabase() async {
+    final supabase = Supabase.instance.client;
+
+    final usuarioAuth = supabase.auth.currentUser;
+
+    if (usuarioAuth == null) {
+      throw Exception('No hay un usuario autenticado');
+    }
+
+    // La función SQL identifica al alumno y
+    // recupera únicamente sus notificaciones.
+    final resultado = await supabase.rpc('obtener_mis_notificaciones');
+
+    return List<Map<String, dynamic>>.from(resultado);
+  }
+
+  static Future<List<Map<String, dynamic>>>
+  obtenerMateriasAsesoriaSupabase() async {
+    final respuesta = await Supabase.instance.client
+        .from('materia')
+        .select('idMateria, nombre')
+        .order('nombre');
+    return List<Map<String, dynamic>>.from(respuesta);
+  }
+
+  static Future<List<Map<String, dynamic>>> obtenerProfesoresMateriaSupabase(
+    int idMateria,
+  ) async {
+    final respuesta = await Supabase.instance.client.rpc(
+      'profesores_de_materia',
+      params: {'p_id_materia': idMateria},
+    );
+    return List<Map<String, dynamic>>.from(respuesta as List);
+  }
+
+  static Future<int> solicitarAsesoriaSupabase({
+    required String motivo,
+    required int idMateria,
+    required String numeroEmpleadoProf,
+    required DateTime fecha,
+    required TimeOfDay hora,
+  }) async {
+    final fechaSQL =
+        '${fecha.year.toString().padLeft(4, '0')}-'
+        '${fecha.month.toString().padLeft(2, '0')}-'
+        '${fecha.day.toString().padLeft(2, '0')}';
+    final horaSQL =
+        '${hora.hour.toString().padLeft(2, '0')}:'
+        '${hora.minute.toString().padLeft(2, '0')}:00';
+    final id = await Supabase.instance.client.rpc(
+      'solicitar_asesoria',
+      params: {
+        'p_motivo': motivo.trim(),
+        'p_id_materia': idMateria,
+        'p_numero_empleado_prof': numeroEmpleadoProf,
+        'p_fecha': fechaSQL,
+        'p_hora': horaSQL,
+      },
+    );
+    return (id as num).toInt();
+  }
+
+  static Future<List<Map<String, dynamic>>> obtenerAsesoriasSupabase() async {
+    final supabase = Supabase.instance.client;
+    final usuarioAuth = supabase.auth.currentUser;
+    if (usuarioAuth == null) {
+      throw Exception('Inicia sesión para consultar tus asesorías');
+    }
+
+    final perfil = await supabase
+        .from('usuario')
+        .select('idUsuario, tipoUsuario')
+        .eq('auth_uid', usuarioAuth.id)
+        .single();
+    if (perfil['tipoUsuario'] != 'ALUMNO') {
+      throw Exception(
+        'Solo el alumno puede ver sus asesorías en esta pantalla',
+      );
+    }
+
+    final alumno = await supabase
+        .from('alumno')
+        .select('matricula')
+        .eq('idUsuario', perfil['idUsuario'])
+        .single();
+    final matricula = alumno['matricula'] as String;
+
+    final respuesta = await supabase
+        .from('asesoria')
+        .select(
+          'idAsesoria, titulo, idMateria, fecha, hora, '
+          'nombreCompletoProfesor, nombreCompletoAlumno',
+        )
+        .eq('matricula', matricula)
+        .order('fecha', ascending: false)
+        .order('hora', ascending: false);
+    return List<Map<String, dynamic>>.from(respuesta);
+  }
 }

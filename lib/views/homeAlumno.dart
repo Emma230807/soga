@@ -3,6 +3,7 @@ import 'package:soga/datasourses/datos_temporales.dart';
 import 'package:soga/models/tarea.dart';
 import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/views/pantalla_calendario.dart';
+import 'package:soga/views/pantalla_asesorias.dart';
 import 'package:soga/views/pantalla_login.dart';
 import 'package:soga/views/pantalla_notas.dart';
 import 'package:soga/views/pantalla_notificaciones.dart';
@@ -31,8 +32,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
 
   int get _completadas => _tareas.where((t) => t.completada).length;
   int get _pendientes => _tareas.length - _completadas;
-  double get _progreso =>
-      _tareas.isEmpty ? 0 : _completadas / _tareas.length;
+  double get _progreso => _tareas.isEmpty ? 0 : _completadas / _tareas.length;
   List<Tarea> get _tareasPendientes =>
       _tareas.where((t) => !t.completada).toList();
 
@@ -44,8 +44,8 @@ class _HomeAlumnoState extends State<HomeAlumno> {
 
   Tarea _desdeSupabase(Map<String, dynamic> fila) {
     final fecha = DateTime.parse(fila['fecha'] as String);
-    final valorPrioridad =
-        (fila['prioridad'] as String? ?? 'MEDIA').toLowerCase();
+    final valorPrioridad = (fila['prioridad'] as String? ?? 'MEDIA')
+        .toLowerCase();
     final prioridad = valorPrioridad.isEmpty
         ? 'Media'
         : '${valorPrioridad[0].toUpperCase()}${valorPrioridad.substring(1)}';
@@ -95,6 +95,26 @@ class _HomeAlumnoState extends State<HomeAlumno> {
       MaterialPageRoute(builder: (_) => const PantallaTareas()),
     );
     if (mounted) await _cargarTareas();
+  }
+
+  Future<void> _mostrarAsesorias() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const PantallaAsesorias()),
+    );
+  }
+
+  Future<void> _agendarAsesoria() async {
+    final creada = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const WidgetAsesoria(),
+    );
+    if (!mounted) return;
+    if (creada == true) {
+      await _mostrarAsesorias();
+    }
   }
 
   Future<void> _mostrarFormularioTarea() async {
@@ -174,20 +194,36 @@ class _HomeAlumnoState extends State<HomeAlumno> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo cerrar sesión: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No se pudo cerrar sesión: $e')));
       }
     }
   }
 
   String get _fechaActual {
     const dias = [
-      'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo',
     ];
     const meses = [
-      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
     ];
     final hoy = DateTime.now();
     return '${dias[hoy.weekday - 1]}, ${hoy.day} de ${meses[hoy.month - 1]}';
@@ -252,7 +288,10 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                     children: [
                       Text(
                         _fechaActual,
-                        style: const TextStyle(fontSize: 12, color: Colors.white70),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Text(
@@ -268,14 +307,19 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                         _cargando
                             ? 'Consultando tus tareas...'
                             : 'Tienes $_pendientes tareas pendientes',
-                        style: const TextStyle(fontSize: 14, color: Colors.white),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(height: 25),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Progreso',
-                              style: TextStyle(color: Colors.white)),
+                          const Text(
+                            'Progreso',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           Text(
                             '$_completadas/${_tareas.length} completadas',
                             style: const TextStyle(color: Colors.white),
@@ -289,7 +333,9 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                           value: _progreso,
                           minHeight: 8,
                           backgroundColor: Colors.white30,
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.amber),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Colors.amber,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 15),
@@ -385,16 +431,20 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                         icono: Icons.menu_book,
                         colorFondo: const Color(0xFFFFE5EA),
                         colorIcono: const Color(0xFFFF5C6C),
-                        onTap: () => showModalBottomSheet<void>(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (_) => const WidgetAsesoria(),
-                        ),
+                        onTap: _agendarAsesoria,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Spacer(),
+                    Expanded(
+                      child: TarjetaAcceso(
+                        titulo: 'Mis asesorías',
+                        subtitulo: 'Ver solicitudes',
+                        icono: Icons.event_note_outlined,
+                        colorFondo: const Color.fromARGB(255, 210, 255, 196),
+                        colorIcono: const Color.fromARGB(255, 0, 255, 149),
+                        onTap: _mostrarAsesorias,
+                      ),
+                    ),
                   ],
                 ),
               ),

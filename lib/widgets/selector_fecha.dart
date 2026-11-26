@@ -11,11 +11,21 @@ class SelectorFecha extends StatelessWidget {
   });
 
   Future<void> seleccionarFecha(BuildContext context) async {
+    final ahora = DateTime.now();
+    final hoy = DateTime(ahora.year, ahora.month, ahora.day);
+
+    // Utiliza la fecha seleccionada si sigue siendo válida.
+    final fechaInicial =
+        fechaSeleccionada != null && !fechaSeleccionada!.isBefore(hoy)
+        ? fechaSeleccionada!
+        : hoy;
+
     final fecha = await showDatePicker(
       context: context,
-      initialDate: fechaSeleccionada ?? DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      initialDate: fechaInicial,
+      firstDate: hoy,
+      lastDate: DateTime(hoy.year + 5, 12, 31),
+      locale: const Locale('es', 'MX'),
     );
 
     if (fecha != null) {
@@ -27,11 +37,11 @@ class SelectorFecha extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: () => seleccionarFecha(context),
-      icon: Icon(Icons.calendar_today),
+      icon: const Icon(Icons.calendar_today),
       label: Text(
         fechaSeleccionada == null
-            ? "Seleccionar fecha"
-            : "${fechaSeleccionada!.day}/${fechaSeleccionada!.month}/${fechaSeleccionada!.year}",
+            ? 'Seleccionar fecha'
+            : '${fechaSeleccionada!.day}/${fechaSeleccionada!.month}/${fechaSeleccionada!.year}',
       ),
     );
   }
