@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:soga/widgets/encabezado_login.dart';
 import 'package:soga/widgets/formulario_login.dart';
@@ -32,10 +31,7 @@ class Login extends StatelessWidget {
                   children: [
                     const Text(
                       "¿No tienes una cuenta?",
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: Colors.black54, fontSize: 14),
                     ),
 
                     TextButton(

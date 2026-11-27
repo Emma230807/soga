@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soga/widgets/encabezado_soga.dart';
+import 'package:soga/widgets/lista_admin_registros.dart';
 import 'package:soga/datasourses/materias_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,6 +14,7 @@ class _PantallaAgregarMateriaState extends State<PantallaAgregarMateria> {
   final nombreMateriaController = TextEditingController();
 
   bool guardando = false;
+  int _versionLista = 0;
 
   @override
   void dispose() {
@@ -39,6 +41,7 @@ class _PantallaAgregarMateriaState extends State<PantallaAgregarMateria> {
 
       nombreMateriaController.clear();
       mostrarMensaje('Materia registrada correctamente');
+      setState(() => _versionLista++);
     } on PostgrestException catch (e) {
       if (!mounted) return;
       mostrarMensaje('Error: ${e.message}');
@@ -52,7 +55,6 @@ class _PantallaAgregarMateriaState extends State<PantallaAgregarMateria> {
         });
       }
     }
-    
   }
 
   void mostrarMensaje(String mensaje) {
@@ -148,6 +150,14 @@ class _PantallaAgregarMateriaState extends State<PantallaAgregarMateria> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
+              child: ListaAdminRegistros(
+                key: ValueKey(_versionLista),
+                tipo: 'materias',
+                titulo: 'Materias registradas',
               ),
             ),
           ],

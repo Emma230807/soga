@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class TarjetaAcceso extends StatelessWidget {
@@ -42,10 +41,7 @@ class TarjetaAcceso extends StatelessWidget {
                   color: colorIcono,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icono,
-                  color: Colors.white,
-                ),
+                child: Icon(icono, color: Colors.white),
               ),
 
               const Spacer(),
@@ -60,10 +56,7 @@ class TarjetaAcceso extends StatelessWidget {
 
               Text(
                 subtitulo,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
               ),
             ],
           ),
@@ -72,4 +65,3 @@ class TarjetaAcceso extends StatelessWidget {
     );
   }
 }
-

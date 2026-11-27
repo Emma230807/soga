@@ -5,10 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class PantallaDetalleTarea extends StatelessWidget {
   final Tarea tarea;
 
-  const PantallaDetalleTarea({
-    super.key,
-    required this.tarea,
-  });
+  const PantallaDetalleTarea({super.key, required this.tarea});
 
   static const Color _moradoSoga = Color(0xFF7043FF);
 
@@ -46,8 +43,18 @@ class PantallaDetalleTarea extends StatelessWidget {
 
   String _fechaLegible(DateTime fecha) {
     const meses = [
-      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
     ];
     return '${fecha.day} de ${meses[fecha.month - 1]} de ${fecha.year}';
   }
@@ -315,13 +322,15 @@ class PantallaDetalleTarea extends StatelessWidget {
                             .maybeSingle(),
                         builder: (context, snapshot) {
                           final String nombreMateria;
-                          if (snapshot.connectionState != ConnectionState.done) {
+                          if (snapshot.connectionState !=
+                              ConnectionState.done) {
                             nombreMateria = 'Cargando materia...';
                           } else if (snapshot.hasError) {
                             nombreMateria = 'No se pudo cargar la materia';
                           } else {
-                            nombreMateria = snapshot.data?['nombre'] as String?
-                                ?? 'Materia no encontrada';
+                            nombreMateria =
+                                snapshot.data?['nombre'] as String? ??
+                                'Materia no encontrada';
                           }
                           return _dato(
                             icono: Icons.school_outlined,

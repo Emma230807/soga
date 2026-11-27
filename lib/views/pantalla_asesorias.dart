@@ -67,6 +67,23 @@ class _PantallaAsesoriasState extends State<PantallaAsesorias> {
     final nombreMateria = idMateria == null
         ? 'Materia no especificada'
         : (materias[idMateria] ?? 'Materia no disponible');
+    final estado = (asesoria['estado'] as String? ?? 'PENDIENTE').toUpperCase();
+    final origen = (asesoria['origen'] as String? ?? 'ALUMNO').toUpperCase();
+    final Color colorEstado;
+    final String etiquetaEstado;
+    switch (estado) {
+      case 'ACEPTADA':
+        colorEstado = const Color(0xFF247A52);
+        etiquetaEstado = 'Aceptada';
+        break;
+      case 'RECHAZADA':
+        colorEstado = const Color(0xFFB53948);
+        etiquetaEstado = 'Rechazada';
+        break;
+      default:
+        colorEstado = const Color(0xFF8059A8);
+        etiquetaEstado = 'Pendiente';
+    }
     return Card(
       color: Colors.white,
       elevation: 1,
@@ -115,6 +132,27 @@ class _PantallaAsesoriasState extends State<PantallaAsesorias> {
                     ],
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                Chip(
+                  label: Text(
+                    etiquetaEstado,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: colorEstado,
+                  side: BorderSide.none,
+                  visualDensity: VisualDensity.compact,
+                ),
+                if (origen == 'PROFESOR')
+                  const Chip(
+                    label: Text('Registrada por el profesor'),
+                    visualDensity: VisualDensity.compact,
+                  ),
               ],
             ),
             const Divider(height: 24),

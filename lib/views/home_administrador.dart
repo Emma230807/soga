@@ -6,8 +6,7 @@ import 'package:soga/views/agregar_inscripcion.dart';
 import 'package:soga/views/agregar_materia.dart';
 import 'package:soga/views/altaGrupo.dart';
 import 'package:soga/views/perfil.dart';
-import 'package:soga/views/pantalla_formulario_admin.dart';
-import 'package:soga/datasourses/profesores_supabase.dart';
+import 'package:soga/views/carga_administradores.dart';
 
 import 'pantalla_login.dart';
 
@@ -21,39 +20,6 @@ class HomeAdministrador extends StatefulWidget {
 }
 
 class _HomeAdministradorState extends State<HomeAdministrador> {
-  List<Map<String, dynamic>> docentes = [];
-
-  bool cargandoDocentes = true;
-  @override
-  void initState() {
-    super.initState();
-    cargarDocentes();
-  }
-
-  Future<void> cargarDocentes() async {
-    try {
-      final resultado = await ProfesoresSupabase.obtenerProfesores();
-
-      if (!mounted) return;
-
-      setState(() {
-        docentes = resultado;
-        cargandoDocentes = false;
-        errorDocentes = null;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        cargandoDocentes = false;
-        errorDocentes = 'Error al consultar docentes';
-      });
-
-      debugPrint(e.toString());
-    }
-  }
-
-  String? errorDocentes;
   // ABRIR PERFIL
   void abrirPerfil() {
     Navigator.push(
@@ -86,15 +52,11 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
   }
 
   // AGREGAR DOCENTE
-  Future<void> abrirPantallaDocente() async {
-    await Navigator.push(
+  void abrirPantallaDocente() {
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => PantallaAgregarDocente()),
     );
-
-    if (!mounted) return;
-
-    cargarDocentes();
   }
 
   // AGREGAR GRUPO
@@ -121,10 +83,10 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
     );
   }
 
-  void abrirPantallaFormularioAdmin() {
+  void abrirCargaAdministradores() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PantallaFormularioAdmin()),
+      MaterialPageRoute(builder: (context) => CargaAdministradores()),
     );
   }
 
@@ -187,7 +149,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                   const SizedBox(height: 8),
 
                   const Text(
-                    'Administración de docentes',
+                    'Panel de administración',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 23,
@@ -198,7 +160,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                   const SizedBox(height: 8),
 
                   const Text(
-                    'Consulta y administra los docentes del sistema.',
+                    'Gestiona docentes, grupos, materias e inscripciones.',
                     style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                 ],
@@ -211,113 +173,49 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                // BOTÓN MI PERFIL
-                Align(
-                  alignment: Alignment.centerRight,
-
-                  child: OutlinedButton.icon(
-                    onPressed: abrirPerfil,
-
-                    icon: const Icon(
-                      Icons.account_circle_outlined,
-                      color: Colors.deepPurple,
-                    ),
-
-                    label: const Text(
-                      "Mi perfil",
-                      style: TextStyle(
-                        color: Colors.deepPurple,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.deepPurple),
-                      backgroundColor: Colors.white,
-
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // TÍTULO DOCENTES REGISTRADOS
+                // NOMBRE DEL ADMINISTRADOR Y ACCESO A PERFIL
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Docentes registrados',
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        widget.usuario.nombre,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF39275C),
+                        ),
                       ),
                     ),
-
-                    Text(
-                      '${docentes.length}',
-                      style: const TextStyle(
-                        fontSize: 17,
-                        color: Color(0xFF7043FF),
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(width: 12),
+                    OutlinedButton.icon(
+                      onPressed: abrirPerfil,
+                      icon: const Icon(
+                        Icons.account_circle_outlined,
+                        color: Colors.deepPurple,
+                      ),
+                      label: const Text(
+                        'Mi perfil',
+                        style: TextStyle(
+                          color: Colors.deepPurple,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.deepPurple),
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 15),
-
-                // LISTA DE DOCENTES
-                if (cargandoDocentes)
-                  const Center(child: CircularProgressIndicator())
-                else if (errorDocentes != null)
-                  Center(child: Text(errorDocentes!))
-                else if (docentes.isEmpty)
-                  const Center(child: Text('No hay docentes registrados'))
-                else
-                  ...docentes.map(
-                    (docente) => Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-
-                      child: ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Color(0xFF7043FF),
-                          child: Icon(Icons.person, color: Colors.white),
-                        ),
-
-                        title: Text(
-                          docente['nombre'],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-
-                        subtitle: Text(docente['correo']),
-
-                        trailing: IconButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Falta conectar la edición de docentes',
-                                ),
-                              ),
-                            );
-                          },
-
-                          icon: const Icon(
-                            Icons.edit,
-                            color: Color(0xFF7043FF),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
 
                 const SizedBox(height: 20),
 
@@ -411,7 +309,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                   height: 50,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      abrirPantallaFormularioAdmin();
+                      abrirCargaAdministradores();
                     },
 
                     icon: const Icon(Icons.add),
@@ -424,6 +322,29 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 36),
+
+                // LOGO DE SOGA SIN FONDO, EN COLOR MORADO
+                const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.code, size: 90, color: Color(0xFF7043FF)),
+                      SizedBox(height: 10),
+                      Text(
+                        'S O G A',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                          color: Color(0xFF7043FF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
               ],
             ),
           ),

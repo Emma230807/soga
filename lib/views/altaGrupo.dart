@@ -15,6 +15,168 @@ class _AltaGrupoState extends State<AltaGrupo> {
   final TextEditingController idGrupoController = TextEditingController();
   final TextEditingController nombreGrupoController = TextEditingController();
   bool guardando = false;
+  late Future<List<Map<String, dynamic>>> _grupos;
+  bool _eliminando = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _grupos = _obtenerGrupos();
+  }
+
+  Future<List<Map<String, dynamic>>> _obtenerGrupos() async {
+    final respuesta = await Supabase.instance.client.rpc(
+      'soga_admin_listar_grupos',
+    );
+    if (respuesta is! List) {
+      throw const FormatException('La consulta no devolvió una lista');
+    }
+    return respuesta
+        .map((fila) => Map<String, dynamic>.from(fila as Map))
+        .toList();
+  }
+
+  Future<void> _actualizarGrupos() async {
+    setState(() => _grupos = _obtenerGrupos());
+    try {
+      await _grupos;
+    } catch (_) {
+      // El error se presenta en el FutureBuilder.
+    }
+  }
+
+  Future<void> _eliminarGrupo(Map<String, dynamic> grupo) async {
+    if (_eliminando) return;
+    final id = (grupo['idGrupo'] ?? '').toString();
+    final nombre = (grupo['nombreGrupo'] ?? '').toString();
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Eliminar grupo'),
+        content: Text(
+          '¿Quieres eliminar el grupo "$id - $nombre"? Esta acción no se puede deshacer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || confirmado != true) return;
+
+    setState(() => _eliminando = true);
+    try {
+      await Supabase.instance.client.rpc(
+        'soga_admin_eliminar_grupo',
+        params: {'p_id_grupo': id},
+      );
+      if (!mounted) return;
+      mostrarMensaje('Grupo eliminado correctamente');
+      await _actualizarGrupos();
+    } on PostgrestException catch (e) {
+      if (mounted) mostrarMensaje('No se pudo eliminar: ${e.message}');
+    } catch (e) {
+      if (mounted) mostrarMensaje('No se pudo eliminar el grupo: $e');
+    } finally {
+      if (mounted) setState(() => _eliminando = false);
+    }
+  }
+
+  Widget _listaGrupos() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Grupos registrados',
+                style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Actualizar grupos',
+              onPressed: _eliminando ? null : _actualizarGrupos,
+              icon: const Icon(Icons.refresh, color: Colors.deepPurple),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        FutureBuilder<List<Map<String, dynamic>>>(
+          future: _grupos,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            if (snapshot.hasError) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('No se pudieron cargar los grupos: ${snapshot.error}'),
+                  TextButton(
+                    onPressed: _actualizarGrupos,
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              );
+            }
+            final grupos = snapshot.data ?? [];
+            if (grupos.isEmpty) {
+              return const Text('No hay grupos registrados.');
+            }
+            return Column(
+              children: [
+                for (final grupo in grupos)
+                  Card(
+                    color: Colors.white,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: ListTile(
+                      leading: const CircleAvatar(
+                        backgroundColor: Color(0xFFEDE4FF),
+                        child: Icon(
+                          Icons.groups_outlined,
+                          color: Colors.deepPurple,
+                        ),
+                      ),
+                      title: Text(
+                        (grupo['idGrupo'] ?? '').toString(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text((grupo['nombreGrupo'] ?? '').toString()),
+                      trailing: IconButton(
+                        tooltip: 'Eliminar grupo',
+                        onPressed: _eliminando
+                            ? null
+                            : () => _eliminarGrupo(grupo),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Future<void> guardarGrupo() async {
     final id = idGrupoController.text.trim();
     final nombre = nombreGrupoController.text.trim();
@@ -39,6 +201,7 @@ class _AltaGrupoState extends State<AltaGrupo> {
       nombreGrupoController.clear();
 
       mostrarMensaje('Grupo registrado correctamente');
+      await _actualizarGrupos();
     } on PostgrestException catch (e) {
       if (!mounted) return;
 
@@ -185,6 +348,8 @@ class _AltaGrupoState extends State<AltaGrupo> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 30),
+                  _listaGrupos(),
                 ],
               ),
             ),

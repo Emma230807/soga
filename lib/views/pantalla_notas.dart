@@ -35,32 +35,46 @@ class _PantallaNotasState extends State<PantallaNotas> {
   }
 
   Future<void> _cargarNotas() async {
-    if (mounted) setState(() { _cargando = true; _error = null; });
+    if (mounted) {
+      setState(() {
+        _cargando = true;
+        _error = null;
+      });
+    }
     try {
       final registros = await DatosTemporales.obtenerNotasSupabase();
-      final nuevas = registros.map((dato) => Nota(
-        id: (dato['idNota'] as num).toInt(),
-        titulo: dato['titulo'] as String? ?? '',
-        contenido: dato['contenido'] as String? ?? '',
-        color: _colorDesdeBD(dato['color']),
-        fechaCreacion: DateTime.tryParse(
-          dato['fechaCreacion']?.toString() ?? '',
-        )?.toLocal() ?? DateTime.now(),
-      )).toList();
+      final nuevas = registros
+          .map(
+            (dato) => Nota(
+              id: (dato['idNota'] as num).toInt(),
+              titulo: dato['titulo'] as String? ?? '',
+              contenido: dato['contenido'] as String? ?? '',
+              color: _colorDesdeBD(dato['color']),
+              fechaCreacion:
+                  DateTime.tryParse(dato['fechaCreacion']?.toString() ?? '')
+                      ?.toLocal() ??
+                  DateTime.now(),
+            ),
+          )
+          .toList();
       if (!mounted) return;
-      setState(() { _notas = nuevas; _cargando = false; });
+      setState(() {
+        _notas = nuevas;
+        _cargando = false;
+      });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _error = e.toString(); _cargando = false; });
+      setState(() {
+        _error = e.toString();
+        _cargando = false;
+      });
     }
   }
 
   Future<void> _abrirEditor([Nota? nota]) async {
     final guardada = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => PantallaAgregarnota(notaInicial: nota),
-      ),
+      MaterialPageRoute(builder: (_) => PantallaAgregarnota(notaInicial: nota)),
     );
     if (!mounted) return;
     if (guardada == true) await _cargarNotas();
@@ -71,7 +85,9 @@ class _PantallaNotasState extends State<PantallaNotas> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Eliminar nota'),
-        content: Text('¿Deseas eliminar "${nota.titulo}"? Esta acción no se puede deshacer.'),
+        content: Text(
+          '¿Deseas eliminar "${nota.titulo}"? Esta acción no se puede deshacer.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -112,9 +128,7 @@ class _PantallaNotasState extends State<PantallaNotas> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(26),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(26)),
             ),
             child: SafeArea(
               child: Column(
@@ -146,7 +160,10 @@ class _PantallaNotasState extends State<PantallaNotas> {
                       IconButton(
                         tooltip: 'Crear nota',
                         onPressed: () => _abrirEditor(),
-                        icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+                        icon: const Icon(
+                          Icons.add_circle_outline,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -186,10 +203,7 @@ class _PantallaNotasState extends State<PantallaNotas> {
                   const SizedBox(height: 8),
                   const Text(
                     'Tus notas y apuntes en un solo lugar.',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 16),
                   Container(
@@ -217,47 +231,65 @@ class _PantallaNotasState extends State<PantallaNotas> {
           ),
           Expanded(
             child: _cargando
-              ? const Center(child: CircularProgressIndicator())
-              : _error != null
-                ? Center(child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text('No se pudieron cargar las notas: $_error', textAlign: TextAlign.center),
-                      const SizedBox(height: 12),
-                      ElevatedButton(onPressed: _cargarNotas, child: const Text('Reintentar')),
-                    ]),
-                  ))
-                : _notas.isEmpty
-                  ? const Center(child: Text('Todavía no tienes notas. Presiona + para crear una.'))
-                  : RefreshIndicator(
-                      onRefresh: _cargarNotas,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
-                        itemCount: _notas.length,
-                        itemBuilder: (context, index) {
-                          final nota = _notas[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(16),
-                                    onTap: () => _abrirEditor(nota),
-                                    child: TarjetaNota(nota: nota),
-                                  ),
-                                ),
-                                IconButton(
-                                  tooltip: 'Eliminar nota',
-                                  onPressed: () => _eliminarNota(nota),
-                                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'No se pudieron cargar las notas: $_error',
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: _cargarNotas,
+                            child: const Text('Reintentar'),
+                          ),
+                        ],
                       ),
                     ),
+                  )
+                : _notas.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Todavía no tienes notas. Presiona + para crear una.',
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _cargarNotas,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
+                      itemCount: _notas.length,
+                      itemBuilder: (context, index) {
+                        final nota = _notas[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(16),
+                                  onTap: () => _abrirEditor(nota),
+                                  child: TarjetaNota(nota: nota),
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Eliminar nota',
+                                onPressed: () => _eliminarNota(nota),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.redAccent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

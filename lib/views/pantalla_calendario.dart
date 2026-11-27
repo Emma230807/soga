@@ -207,7 +207,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       lastDay: DateTime.utc(2035, 12, 31),
                       focusedDay: _focusedDay,
                       startingDayOfWeek: StartingDayOfWeek.monday,
-                      selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                      selectedDayPredicate: (day) =>
+                          isSameDay(_selectedDay, day),
                       onDaySelected: (selectedDay, focusedDay) {
                         setState(() {
                           _selectedDay = selectedDay;
@@ -274,11 +275,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         itemBuilder: (context, index) {
                           final tarea = tareasDelDia[index];
                           final color = _colorTarea(tarea['color']);
-                          final titulo = (tarea['titulo'] ?? 'Sin título').toString();
-                          final descripcion =
-                              (tarea['descripcion'] ?? '').toString().trim();
-                          final prioridad =
-                              (tarea['prioridad'] ?? 'MEDIA').toString();
+                          final titulo = (tarea['titulo'] ?? 'Sin título')
+                              .toString();
+                          final descripcion = (tarea['descripcion'] ?? '')
+                              .toString()
+                              .trim();
+                          final prioridad = (tarea['prioridad'] ?? 'MEDIA')
+                              .toString();
                           return Card(
                             elevation: 0,
                             color: Colors.white,
@@ -302,7 +305,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           titulo,

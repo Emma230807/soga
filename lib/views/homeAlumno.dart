@@ -26,6 +26,14 @@ class HomeAlumno extends StatefulWidget {
 
 class _HomeAlumnoState extends State<HomeAlumno> {
   List<Tarea> _tareas = [];
+  int _totalActividadesDocente = 0;
+  int _completadasActividadesDocente = 0;
+
+  double get _progresoActividadesDocente => _totalActividadesDocente == 0
+      ? 0
+      : _completadasActividadesDocente / _totalActividadesDocente;
+  bool _cargandoActividades = true;
+  String? _errorActividades;
   bool _cargando = true;
   String? _error;
   final Set<int> _operacionesEnCurso = {};
@@ -39,7 +47,41 @@ class _HomeAlumnoState extends State<HomeAlumno> {
   @override
   void initState() {
     super.initState();
-    _cargarTareas();
+    _actualizarTodo();
+  }
+
+  Future<void> _actualizarTodo() async {
+    await Future.wait([_cargarTareas(), _cargarActividades()]);
+  }
+
+  Future<void> _cargarActividades() async {
+    if (!mounted) return;
+    setState(() {
+      _cargandoActividades = true;
+      _errorActividades = null;
+    });
+    try {
+      final resultado = await Supabase.instance.client.rpc(
+        'soga_alumno_progreso_actividades',
+      );
+      if (resultado is! Map) {
+        throw const FormatException('Respuesta inesperada de actividades');
+      }
+      final total = (resultado['total'] as num?)?.toInt() ?? 0;
+      final completadas = (resultado['completadas'] as num?)?.toInt() ?? 0;
+      if (!mounted) return;
+      setState(() {
+        _totalActividadesDocente = total;
+        _completadasActividadesDocente = completadas;
+        _cargandoActividades = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorActividades = e.toString();
+        _cargandoActividades = false;
+      });
+    }
   }
 
   Tarea _desdeSupabase(Map<String, dynamic> fila) {
@@ -242,8 +284,8 @@ class _HomeAlumnoState extends State<HomeAlumno> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Actualizar tareas',
-            onPressed: _cargarTareas,
+            tooltip: 'Actualizar tareas y actividades',
+            onPressed: _actualizarTodo,
             icon: const Icon(Icons.refresh, color: Colors.white),
           ),
           IconButton(
@@ -265,7 +307,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _cargarTareas,
+        onRefresh: _actualizarTodo,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
@@ -338,6 +380,45 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Actividades del profesor',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          if (!_cargandoActividades &&
+                              _errorActividades == null)
+                            Text(
+                              '$_completadasActividadesDocente/$_totalActividadesDocente completadas',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: _progresoActividadesDocente,
+                          minHeight: 8,
+                          backgroundColor: Colors.white30,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Colors.amber,
+                          ),
+                        ),
+                      ),
+                      if (_errorActividades != null)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton(
+                            onPressed: _cargarActividades,
+                            child: const Text(
+                              'Error al cargar actividades. Reintentar',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 15),
                     ],
                   ),
