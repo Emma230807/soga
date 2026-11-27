@@ -13,7 +13,9 @@ class NotificacionesPush {
   static String? ultimoToken;
 
   static Future<void> actualizacionPendiente = Future<void>.value();
-  static final notificacionesLocales = FlutterLocalNotificationsPlugin();
+
+  static final notificacionesLocales =
+      FlutterLocalNotificationsPlugin();
 
   static const canal = AndroidNotificationChannel(
     'soga_notificaciones',
@@ -23,6 +25,7 @@ class NotificacionesPush {
   );
 
   static StreamSubscription<RemoteMessage>? suscripcionMensajes;
+
   static Future<void> inicializar() async {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
       return;
@@ -33,17 +36,21 @@ class NotificacionesPush {
 
       await suscripcionMensajes?.cancel();
 
-      suscripcionMensajes = FirebaseMessaging.onMessage.listen((mensaje) async {
-        if (supabase.auth.currentUser == null) return;
+      suscripcionMensajes = FirebaseMessaging.onMessage.listen(
+        (mensaje) async {
+          if (supabase.auth.currentUser == null) return;
 
-        try {
-          debugPrint('NOTIFICACIÓN RECIBIDA');
+          try {
+            debugPrint('NOTIFICACIÓN RECIBIDA');
 
-          await mostrarNotificacion(mensaje);
-        } catch (e) {
-          debugPrint('Error al mostrar notificación: ${e.runtimeType}');
-        }
-      });
+            await mostrarNotificacion(mensaje);
+          } catch (e) {
+            debugPrint(
+              'Error al mostrar notificación: ${e.runtimeType}',
+            );
+          }
+        },
+      );
 
       final permisos = await messaging.requestPermission(
         alert: true,
@@ -53,7 +60,8 @@ class NotificacionesPush {
 
       debugPrint('Permisos: ${permisos.authorizationStatus}');
 
-      if (permisos.authorizationStatus == AuthorizationStatus.authorized) {
+      if (permisos.authorizationStatus ==
+          AuthorizationStatus.authorized) {
         await registrarDispositivo();
       } else {
         debugPrint('Permiso de notificaciones denegado');
@@ -71,17 +79,27 @@ class NotificacionesPush {
     try {
       final usuario = supabase.auth.currentUser;
 
+      debugPrint('Iniciando registro del dispositivo');
+      debugPrint('Usuario autenticado: ${usuario != null}');
+
       if (usuario == null) return;
 
       final permisos = await messaging.requestPermission();
 
-      if (permisos.authorizationStatus != AuthorizationStatus.authorized) {
+      debugPrint('Permisos: ${permisos.authorizationStatus}');
+
+      if (permisos.authorizationStatus !=
+          AuthorizationStatus.authorized) {
         return;
       }
 
       final token = await messaging.getToken();
 
+      debugPrint('Token obtenido: ${token != null}');
+
       if (token == null) return;
+
+      if (supabase.auth.currentUser?.id != usuario.id) return;
 
       await supabase.from('dispositivos').upsert({
         'token_fcm': token,
@@ -93,6 +111,11 @@ class NotificacionesPush {
       debugPrint('Dispositivo registrado correctamente');
 
       await escucharRenovacion(usuario.id, token);
+
+    } on PostgrestException catch (e) {
+      debugPrint('ERROR AL REGISTRAR DISPOSITIVO');
+      debugPrint('Código SQL: ${e.code}');
+      debugPrint('Mensaje: ${e.message}');
     } catch (e) {
       debugPrint('Error al registrar dispositivo: ${e.runtimeType}');
     }
@@ -118,7 +141,8 @@ class NotificacionesPush {
             'token_fcm': nuevoToken,
             'auth_uid': authUid,
             'plataforma': 'android',
-            'actualizado_en': DateTime.now().toUtc().toIso8601String(),
+            'actualizado_en':
+                DateTime.now().toUtc().toIso8601String(),
           }, onConflict: 'token_fcm');
 
           ultimoToken = nuevoToken;
@@ -132,6 +156,11 @@ class NotificacionesPush {
           }
 
           debugPrint('Token FCM actualizado correctamente');
+
+        } on PostgrestException catch (e) {
+          debugPrint('ERROR AL ACTUALIZAR TOKEN');
+          debugPrint('Código SQL: ${e.code}');
+          debugPrint('Mensaje: ${e.message}');
         } catch (e) {
           debugPrint('Error al actualizar token: ${e.runtimeType}');
         }
@@ -181,9 +210,12 @@ class NotificacionesPush {
     }
 
     try {
-      final respuesta = await supabase.functions.invoke('enviar-notificacion');
+      final respuesta = await supabase.functions.invoke(
+        'enviar-notificacion',
+      );
 
       debugPrint('Respuesta Firebase: ${respuesta.data}');
+
     } on FunctionException catch (e) {
       debugPrint('Código: ${e.status}');
       debugPrint('Detalle: ${e.details}');
@@ -197,25 +229,30 @@ class NotificacionesPush {
       '@mipmap/ic_launcher',
     );
 
-    const configuracion = InitializationSettings(android: configuracionAndroid);
+    const configuracion = InitializationSettings(
+      android: configuracionAndroid,
+    );
 
-    await notificacionesLocales.initialize(settings: configuracion);
+    await notificacionesLocales.initialize(
+      settings: configuracion,
+    );
 
     await notificacionesLocales
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(canal);
   }
 
-  static Future<void> mostrarNotificacion(RemoteMessage mensaje) async {
+  static Future<void> mostrarNotificacion(
+    RemoteMessage mensaje,
+  ) async {
     final notificacion = mensaje.notification;
 
     if (notificacion == null) return;
 
     await notificacionesLocales.show(
-      id:
-          (mensaje.messageId ?? mensaje.hashCode.toString()).hashCode &
+      id: (mensaje.messageId ?? mensaje.hashCode.toString())
+              .hashCode &
           0x7fffffff,
       title: notificacion.title,
       body: notificacion.body,
@@ -223,7 +260,8 @@ class NotificacionesPush {
         android: AndroidNotificationDetails(
           'soga_notificaciones',
           'Notificaciones SOGA',
-          channelDescription: 'Avisos de tareas, asesorías y profesores',
+          channelDescription:
+              'Avisos de tareas, asesorías y profesores',
           importance: Importance.high,
           priority: Priority.high,
           playSound: true,
@@ -232,6 +270,4 @@ class NotificacionesPush {
       ),
     );
   }
-
- 
 }
