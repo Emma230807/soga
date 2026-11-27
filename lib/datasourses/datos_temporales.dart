@@ -10,6 +10,8 @@ import 'package:soga/models/usuario_sesion.dart';
 import 'package:soga/models/vinculacion_docente_alumno.dart';
 import 'package:soga/models/asesoria.dart';
 import 'package:soga/models/nota.dart';
+import 'package:soga/services/notificaciones_push.dart';
+
 
 class DatosTemporales {
   // Sesion vigente en Supabase. Las colecciones locales siguen disponibles
@@ -90,6 +92,10 @@ class DatosTemporales {
         numeroEmpleadoAdmin: numeroEmpleadoAdmin,
       );
       _sesionSupabase = sesion;
+
+      await NotificacionesPush.registrarDispositivo();
+      await NotificacionesPush.probarEnvio();
+
       return sesion;
     } catch (_) {
       _sesionSupabase = null;
@@ -112,10 +118,13 @@ class DatosTemporales {
     );
   }
 
-  static Future<void> cerrarSesionSupabase() async {
-    await Supabase.instance.client.auth.signOut();
-    _sesionSupabase = null;
-  }
+ static Future<void> cerrarSesionSupabase() async {
+  await NotificacionesPush.eliminarDispositivo();
+
+  await Supabase.instance.client.auth.signOut();
+
+  _sesionSupabase = null;
+}
 
   static Future<void> probarGuardadoTarea() async {
     final usuario = FirebaseAuth.instance.currentUser;

@@ -185,7 +185,7 @@ class _HomeAlumnoState extends State<HomeAlumno> {
 
   Future<void> _cerrarSesion() async {
     try {
-      await Supabase.instance.client.auth.signOut();
+      await DatosTemporales.cerrarSesionSupabase();
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,

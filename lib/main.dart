@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:soga/views/vista_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:soga/services/notificaciones_push.dart';
+import 'package:flutter/foundation.dart';
 
 import 'firebase_options.dart';
 
@@ -34,6 +36,10 @@ Future<void> main() async {
 
   // Iniciar SOGA
   runApp(const MiAplicacion());
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await NotificacionesPush.inicializar();
+    
+  }
 }
 
 class MiAplicacion extends StatelessWidget {
