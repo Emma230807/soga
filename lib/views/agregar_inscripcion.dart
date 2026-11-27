@@ -4,6 +4,7 @@ import 'package:soga/datasourses/profesores_supabase.dart';
 import 'package:soga/models/grupo.dart';
 import 'package:flutter/material.dart';
 import 'package:soga/widgets/encabezado_soga.dart';
+import 'package:soga/widgets/lista_admin_registros.dart';
 import 'package:soga/datasourses/inscripciones_supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,6 +28,7 @@ class _PantallaAgregarInscripcionState
 
   bool cargando = true;
   bool guardando = false;
+  int _versionLista = 0;
 
   String? errorDatos;
   @override
@@ -89,6 +91,7 @@ class _PantallaAgregarInscripcionState
       if (!mounted) return;
 
       mostrarMensaje('Inscripción registrada correctamente');
+      setState(() => _versionLista++);
     } on PostgrestException catch (e) {
       if (!mounted) return;
 
@@ -310,6 +313,14 @@ class _PantallaAgregarInscripcionState
                     ),
                   ),
                 ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
+              child: ListaAdminRegistros(
+                key: ValueKey(_versionLista),
+                tipo: 'asignaciones',
+                titulo: 'Inscripciones registradas',
               ),
             ),
           ],

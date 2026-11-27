@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:soga/datasourses/profesores_supabase.dart';
+import 'package:soga/widgets/lista_admin_registros.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 
@@ -17,40 +18,8 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
   final usuarioController = TextEditingController();
   final correoController = TextEditingController();
   final contrasenaController = TextEditingController();
-  List<Map<String, dynamic>> docentes = [];
-
-  bool cargandoDocentes = true;
-
-  String? errorDocentes;
   bool guardando = false;
-  @override
-  void initState() {
-    super.initState();
-    cargarDocentes();
-  }
-
-  Future<void> cargarDocentes() async {
-    try {
-      final resultado = await ProfesoresSupabase.obtenerProfesores();
-
-      if (!mounted) return;
-
-      setState(() {
-        docentes = resultado;
-        cargandoDocentes = false;
-        errorDocentes = null;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        cargandoDocentes = false;
-        errorDocentes = 'Error al consultar docentes';
-      });
-
-      debugPrint(e.toString());
-    }
-  }
+  int _versionLista = 0;
 
   @override
   void dispose() {
@@ -105,7 +74,7 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
       contrasenaController.clear();
 
       mostrarMensaje('Profesor registrado correctamente');
-      await cargarDocentes();
+      setState(() => _versionLista++);
     } on FunctionException catch (e) {
       debugPrint('Código: ${e.status}');
       debugPrint('Detalles: ${e.details}');
@@ -290,86 +259,12 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
                 ),
               ),
 
-              // DOCENTES REGISTRADOS
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 10,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Docentes registrados',
-                          style: TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${docentes.length}',
-                          style: const TextStyle(
-                            fontSize: 17,
-                            color: Colors.deepPurple,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    if (cargandoDocentes)
-                      const Center(child: CircularProgressIndicator())
-                    else if (errorDocentes != null)
-                      Center(child: Text(errorDocentes!))
-                    else if (docentes.isEmpty)
-                      const Center(child: Text('No hay docentes registrados'))
-                    else
-                      ...docentes.map(
-                        (docente) => Card(
-                          color: Colors.white,
-                          elevation: 1,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: ListTile(
-                            leading: const CircleAvatar(
-                              backgroundColor: Colors.deepPurple,
-                              child: Icon(Icons.person, color: Colors.white),
-                            ),
-                            title: Text(
-                              docente['nombre'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text(docente['correo']),
-                            trailing: IconButton(
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Falta conectar la edición de docentes',
-                                    ),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.edit_outlined,
-                                color: Colors.deepPurple,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    const SizedBox(height: 20),
-                  ],
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                child: ListaAdminRegistros(
+                  key: ValueKey(_versionLista),
+                  tipo: 'docentes',
+                  titulo: 'Docentes registrados',
                 ),
               ),
             ],

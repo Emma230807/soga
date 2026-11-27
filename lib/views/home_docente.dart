@@ -5,6 +5,7 @@ import 'package:soga/views/historial_asesorias.dart';
 import 'package:soga/views/puntuacion_alumnos.dart';
 import 'package:soga/views/registro_asesorias.dart';
 import 'package:soga/views/perfil.dart';
+import 'package:soga/views/pantalla_login.dart';
 import 'package:soga/widgets/formulario_vinculacion.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,11 +15,7 @@ class HomeDocente extends StatefulWidget {
   final Docente docente;
   final UsuarioSesion usuario;
 
-  const HomeDocente({
-    super.key,
-    required this.docente,
-    required this.usuario,
-  });
+  const HomeDocente({super.key, required this.docente, required this.usuario});
 
   @override
   State<HomeDocente> createState() => _HomeDocenteState();
@@ -29,7 +26,6 @@ class _HomeDocenteState extends State<HomeDocente> {
   String? _relacionSeleccionada;
   final Map<String, Future<Map<String, dynamic>>> _detalles = {};
   final Set<String> _operando = {};
-
 
   @override
   void initState() {
@@ -53,7 +49,9 @@ class _HomeDocenteState extends State<HomeDocente> {
       if (respuesta is! List) {
         throw const FormatException('La consulta no devolvió una lista.');
       }
-      return respuesta.map((fila) => Map<String, dynamic>.from(fila as Map)).toList();
+      return respuesta
+          .map((fila) => Map<String, dynamic>.from(fila as Map))
+          .toList();
     }
 
     return _DatosDocente(
@@ -70,6 +68,28 @@ class _HomeDocenteState extends State<HomeDocente> {
       await consulta;
     } catch (_) {
       // El error se presenta en FutureBuilder.
+    }
+  }
+
+  Future<void> _regresar() async {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    // Sin una ruta anterior, salir directamente al inicio de sesión.
+    try {
+      await Supabase.instance.client.auth.signOut();
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const Login()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo cerrar la sesión: $e')),
+      );
     }
   }
 
@@ -97,7 +117,9 @@ class _HomeDocenteState extends State<HomeDocente> {
       '$matricula|$grupo|$materia';
 
   Future<Map<String, dynamic>> _cargarDetalle(
-    String matricula, String grupo, int materia,
+    String matricula,
+    String grupo,
+    int materia,
   ) async {
     final respuesta = await Supabase.instance.client.rpc(
       'soga_docente_detalle_alumno',
@@ -116,7 +138,8 @@ class _HomeDocenteState extends State<HomeDocente> {
   void _abrirAlumno(String matricula, String grupo, int materia) {
     final clave = _claveAlumno(matricula, grupo, materia);
     _detalles.putIfAbsent(
-      clave, () => _cargarDetalle(matricula, grupo, materia),
+      clave,
+      () => _cargarDetalle(matricula, grupo, materia),
     );
     setState(() {});
   }
@@ -129,8 +152,11 @@ class _HomeDocenteState extends State<HomeDocente> {
   }
 
   Future<void> _cambiarActividad(
-    String matricula, String grupo, int materia,
-    int idActividad, bool estado,
+    String matricula,
+    String grupo,
+    int materia,
+    int idActividad,
+    bool estado,
   ) async {
     final clave = '$matricula|$idActividad';
     if (_operando.contains(clave)) return;
@@ -157,8 +183,11 @@ class _HomeDocenteState extends State<HomeDocente> {
   }
 
   Future<void> _eliminarActividad(
-    String matricula, String grupo, int materia,
-    int idActividad, String nombre,
+    String matricula,
+    String grupo,
+    int materia,
+    int idActividad,
+    String nombre,
   ) async {
     final confirmar = await showDialog<bool>(
       context: context,
@@ -198,7 +227,11 @@ class _HomeDocenteState extends State<HomeDocente> {
     }
   }
 
-  Widget _tarjetaAlumno(Map<String, dynamic> alumno, String grupo, int materia) {
+  Widget _tarjetaAlumno(
+    Map<String, dynamic> alumno,
+    String grupo,
+    int materia,
+  ) {
     final nombre = (alumno['nombre'] ?? 'Alumno sin nombre').toString();
     final matricula = (alumno['matricula'] ?? '').toString();
     final clave = _claveAlumno(matricula, grupo, materia);
@@ -214,7 +247,10 @@ class _HomeDocenteState extends State<HomeDocente> {
           backgroundColor: Color(0xFFEDE4FF),
           child: Icon(Icons.person_outline, color: Color(0xFF7043FF)),
         ),
-        title: Text(nombre, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(
+          nombre,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         subtitle: Text('Tareas completadas: $completadas/$total'),
         onExpansionChanged: (abierto) {
           if (abierto) _abrirAlumno(matricula, grupo, materia);
@@ -224,7 +260,9 @@ class _HomeDocenteState extends State<HomeDocente> {
           if (_detalles[clave] == null)
             const Padding(
               padding: EdgeInsets.all(12),
-              child: Text('Abre la tarjeta para consultar las tareas y actividades.'),
+              child: Text(
+                'Abre la tarjeta para consultar las tareas y actividades.',
+              ),
             )
           else
             FutureBuilder<Map<String, dynamic>>(
@@ -241,7 +279,8 @@ class _HomeDocenteState extends State<HomeDocente> {
                     children: [
                       Text('No se pudo cargar: ${snapshot.error}'),
                       TextButton(
-                        onPressed: () => _recargarAlumno(matricula, grupo, materia),
+                        onPressed: () =>
+                            _recargarAlumno(matricula, grupo, materia),
                         child: const Text('Reintentar'),
                       ),
                     ],
@@ -249,16 +288,22 @@ class _HomeDocenteState extends State<HomeDocente> {
                 }
                 final datos = snapshot.data!;
                 final tareas = (datos['tareas'] as List? ?? [])
-                    .map((e) => Map<String, dynamic>.from(e as Map)).toList();
+                    .map((e) => Map<String, dynamic>.from(e as Map))
+                    .toList();
                 final actividades = (datos['actividades'] as List? ?? [])
-                    .map((e) => Map<String, dynamic>.from(e as Map)).toList();
+                    .map((e) => Map<String, dynamic>.from(e as Map))
+                    .toList();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Divider(),
-                    const Text('TAREAS (solo lectura)',
-                        style: TextStyle(fontWeight: FontWeight.bold,
-                            color: Color(0xFF7043FF))),
+                    const Text(
+                      'TAREAS (solo lectura)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF7043FF),
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     if (tareas.isEmpty)
                       const Text('Sin tareas en esta materia.')
@@ -269,20 +314,28 @@ class _HomeDocenteState extends State<HomeDocente> {
                           dense: true,
                           leading: Icon(
                             tarea['completada'] == true
-                                ? Icons.check_circle : Icons.radio_button_unchecked,
+                                ? Icons.check_circle
+                                : Icons.radio_button_unchecked,
                             color: tarea['completada'] == true
-                                ? Colors.green : Colors.grey,
+                                ? Colors.green
+                                : Colors.grey,
                           ),
-                          title: Text((tarea['titulo'] ?? 'Sin título').toString()),
+                          title: Text(
+                            (tarea['titulo'] ?? 'Sin título').toString(),
+                          ),
                           subtitle: Text(
                             '${tarea['completada'] == true ? 'Completada' : 'Pendiente'}'
                             ' · Fecha: ${tarea['fecha'] ?? 'Sin fecha'}',
                           ),
                         ),
                     const Divider(height: 26),
-                    const Text('ACTIVIDADES (administradas por el profesor)',
-                        style: TextStyle(fontWeight: FontWeight.bold,
-                            color: Color(0xFF7043FF))),
+                    const Text(
+                      'ACTIVIDADES (administradas por usted)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF7043FF),
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     if (actividades.isEmpty)
                       const Text('Sin actividades asignadas.')
@@ -293,29 +346,44 @@ class _HomeDocenteState extends State<HomeDocente> {
                             Checkbox(
                               value: actividad['estado'] == true,
                               activeColor: const Color(0xFF7043FF),
-                              onChanged: _operando.contains(
-                                  '$matricula|${actividad['idActividad']}')
+                              onChanged:
+                                  _operando.contains(
+                                    '$matricula|${actividad['idActividad']}',
+                                  )
                                   ? null
                                   : (valor) => _cambiarActividad(
-                                      matricula, grupo, materia,
+                                      matricula,
+                                      grupo,
+                                      materia,
                                       (actividad['idActividad'] as num).toInt(),
                                       valor ?? false,
                                     ),
                             ),
                             Expanded(
-                              child: Text((actividad['actividad'] ?? 'Sin nombre').toString()),
+                              child: Text(
+                                (actividad['actividad'] ?? 'Sin nombre')
+                                    .toString(),
+                              ),
                             ),
                             IconButton(
                               tooltip: 'Eliminar actividad de este alumno',
-                              onPressed: _operando.contains(
-                                  '$matricula|${actividad['idActividad']}')
+                              onPressed:
+                                  _operando.contains(
+                                    '$matricula|${actividad['idActividad']}',
+                                  )
                                   ? null
                                   : () => _eliminarActividad(
-                                      matricula, grupo, materia,
+                                      matricula,
+                                      grupo,
+                                      materia,
                                       (actividad['idActividad'] as num).toInt(),
-                                      (actividad['actividad'] ?? 'Actividad').toString(),
+                                      (actividad['actividad'] ?? 'Actividad')
+                                          .toString(),
                                     ),
-                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.redAccent,
+                              ),
                             ),
                           ],
                         ),
@@ -363,6 +431,11 @@ class _HomeDocenteState extends State<HomeDocente> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF7043FF),
         foregroundColor: Colors.white,
+        leading: IconButton(
+          tooltip: 'Regresar',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _regresar,
+        ),
         title: const Text('Panel docente'),
         actions: [
           IconButton(
@@ -372,9 +445,8 @@ class _HomeDocenteState extends State<HomeDocente> {
           ),
           IconButton(
             tooltip: 'Mi perfil',
-            onPressed: () => _abrirPantalla(
-              PantallaPerfil(usuario: widget.usuario),
-            ),
+            onPressed: () =>
+                _abrirPantalla(PantallaPerfil(usuario: widget.usuario)),
             icon: const Icon(Icons.account_circle_outlined),
           ),
         ],
@@ -417,7 +489,10 @@ class _HomeDocenteState extends State<HomeDocente> {
                     ),
                   ),
                   const SizedBox(height: 5),
-                  const Text('Profesor', style: TextStyle(color: Colors.white70)),
+                  const Text(
+                    'Profesor',
+                    style: TextStyle(color: Colors.white70),
+                  ),
                   const SizedBox(height: 5),
                   Text(
                     widget.usuario.correo,
@@ -440,11 +515,17 @@ class _HomeDocenteState extends State<HomeDocente> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _boton('Registrar asesoría', Icons.edit_calendar_outlined,
-                      () => _abrirPantalla(RegistroAsesorias())),
+                  _boton(
+                    'Registrar asesoría',
+                    Icons.edit_calendar_outlined,
+                    () => _abrirPantalla(RegistroAsesorias()),
+                  ),
                   const SizedBox(height: 10),
-                  _boton('Historial de asesorías', Icons.history,
-                      () => _abrirPantalla(HistorialAsesorias())),
+                  _boton(
+                    'Historial de asesorías',
+                    Icons.history,
+                    () => _abrirPantalla(HistorialAsesorias()),
+                  ),
                   const SizedBox(height: 24),
                   const Text(
                     'MIS RELACIONES Y ALUMNOS',
@@ -467,7 +548,9 @@ class _HomeDocenteState extends State<HomeDocente> {
                       if (snapshot.hasError) {
                         return Column(
                           children: [
-                            Text('No se pudieron cargar los grupos: ${snapshot.error}'),
+                            Text(
+                              'No se pudieron cargar los grupos: ${snapshot.error}',
+                            ),
                             TextButton(
                               onPressed: _actualizar,
                               child: const Text('Reintentar'),
@@ -479,16 +562,24 @@ class _HomeDocenteState extends State<HomeDocente> {
                       if (datos.grupos.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
-                          child: Text('Todavía no tienes grupos y materias asignados.'),
+                          child: Text(
+                            'Todavía no tienes grupos y materias asignados.',
+                          ),
                         );
                       }
                       final claves = datos.grupos.map(_claveRelacion).toSet();
-                      final seleccion = _relacionSeleccionada != null &&
+                      final seleccion =
+                          _relacionSeleccionada != null &&
                               claves.contains(_relacionSeleccionada)
                           ? _relacionSeleccionada!
                           : _claveRelacion(datos.grupos.first);
-                      final alumnos = datos.alumnos.where((alumno) =>
-                          (alumno['cveInscripcion'] ?? '').toString() == seleccion).toList();
+                      final alumnos = datos.alumnos
+                          .where(
+                            (alumno) =>
+                                (alumno['cveInscripcion'] ?? '').toString() ==
+                                seleccion,
+                          )
+                          .toList();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -524,7 +615,9 @@ class _HomeDocenteState extends State<HomeDocente> {
                           ),
                           const SizedBox(height: 10),
                           if (alumnos.isEmpty)
-                            const Text('No hay alumnos inscritos en este grupo.')
+                            const Text(
+                              'No hay alumnos inscritos en este grupo.',
+                            )
                           else
                             for (final alumno in alumnos)
                               _tarjetaAlumno(
@@ -533,23 +626,26 @@ class _HomeDocenteState extends State<HomeDocente> {
                                   (g) => _claveRelacion(g) == seleccion,
                                 )['idGrupo']).toString(),
                                 (datos.grupos.firstWhere(
-                                  (g) => _claveRelacion(g) == seleccion,
-                                )['idMateria'] as num).toInt(),
+                                          (g) => _claveRelacion(g) == seleccion,
+                                        )['idMateria']
+                                        as num)
+                                    .toInt(),
                               ),
                         ],
                       );
                     },
                   ),
                   const SizedBox(height: 20),
-                  _boton('Agregar alumno', Icons.person_add_alt_1, _agregarAlumno),
+                  _boton(
+                    'Agregar alumno',
+                    Icons.person_add_alt_1,
+                    _agregarAlumno,
+                  ),
                   const SizedBox(height: 12),
-                  _boton('Ver avance de alumnos', Icons.bar_chart,
-                      () => _abrirPantalla(PuntuacionAlumnos())),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Las relaciones con alumnos se consultan desde Supabase. '
-                    'No se utilizan los alumnos de prueba.',
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                  _boton(
+                    'Ver avance de alumnos',
+                    Icons.bar_chart,
+                    () => _abrirPantalla(PuntuacionAlumnos()),
                   ),
                 ],
               ),
