@@ -88,7 +88,6 @@ class DatosTemporales {
       _sesionSupabase = sesion;
 
       await NotificacionesPush.registrarDispositivo();
-      await NotificacionesPush.probarEnvio();
 
       return sesion;
     } catch (_) {
