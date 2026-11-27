@@ -57,7 +57,6 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
       context,
       MaterialPageRoute(builder: (context) => PantallaAgregarDocente()),
     );
-
   }
 
   // AGREGAR GRUPO
@@ -331,11 +330,7 @@ class _HomeAdministradorState extends State<HomeAdministrador> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.code,
-                        size: 90,
-                        color: Color(0xFF7043FF),
-                      ),
+                      Icon(Icons.code, size: 90, color: Color(0xFF7043FF)),
                       SizedBox(height: 10),
                       Text(
                         'S O G A',

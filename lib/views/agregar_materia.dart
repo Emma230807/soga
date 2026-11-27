@@ -55,7 +55,6 @@ class _PantallaAgregarMateriaState extends State<PantallaAgregarMateria> {
         });
       }
     }
-    
   }
 
   void mostrarMensaje(String mensaje) {

@@ -1,31 +1,40 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Servicio compatible con el formulario de administradores de SOGA.
+/// Usa la Edge Function actual, sin cambiar la sesión autenticada.
 class AdministradoresSupabase {
-  static final supabase = Supabase.instance.client;
+  static SupabaseClient get supabase => Supabase.instance.client;
 
   static Future<void> registrarAdministrador({
     required String nombre,
     required String numeroEmpleado,
+    String? usuario,
     required String correo,
     required String contrasena,
   }) async {
-    final sesion = supabase.auth.currentSession;
-
-    if (sesion == null) {
-      throw Exception('No hay una sesión activa');
+    if (supabase.auth.currentSession == null) {
+      throw StateError('No hay una sesión activa');
     }
 
-    await supabase.functions.invoke(
-      'registrar-administrador',
-      headers: {
-        'Authorization': 'Bearer ${sesion.accessToken}',
-      },
+    final alias = (usuario ?? correo.split('@').first).trim();
+    final respuesta = await supabase.functions.invoke(
+      'soga-admin-administradores',
       body: {
-        'nombreCompleto': nombre,
-        'numeroEmpleado': numeroEmpleado,
-        'correo': correo,
+        'accion': 'crear',
+        'nombre': nombre.trim(),
+        'numeroEmpleado': numeroEmpleado.trim(),
+        'usuario': alias,
+        'correo': correo.trim().toLowerCase(),
         'contrasena': contrasena,
       },
     );
+
+    if (respuesta.status < 200 || respuesta.status >= 300) {
+      final datos = respuesta.data;
+      final mensaje = datos is Map
+          ? (datos['error'] ?? datos['mensaje'] ?? 'Error al registrar')
+          : 'Error al registrar administrador';
+      throw StateError(mensaje.toString());
+    }
   }
 }

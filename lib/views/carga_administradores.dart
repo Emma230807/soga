@@ -73,7 +73,8 @@ class _CargaAdministradoresState extends State<CargaAdministradores> {
 
   void _aviso(String mensaje) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   Future<void> _guardar() async {
@@ -131,7 +132,9 @@ class _CargaAdministradoresState extends State<CargaAdministradores> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar administrador'),
-        content: Text('¿Quieres eliminar la cuenta de $nombre? Esta acción no se puede deshacer.'),
+        content: Text(
+          '¿Quieres eliminar la cuenta de $nombre? Esta acción no se puede deshacer.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -193,16 +196,16 @@ class _CargaAdministradoresState extends State<CargaAdministradores> {
                     onPressed: () => setState(
                       () => _mostrarContrasena = !_mostrarContrasena,
                     ),
-                    icon: Icon(_mostrarContrasena
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined),
+                    icon: Icon(
+                      _mostrarContrasena
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                    ),
                   )
                 : null,
             filled: true,
             fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ],
@@ -238,17 +241,29 @@ class _CargaAdministradoresState extends State<CargaAdministradores> {
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
                       ),
                       const SizedBox(height: 15),
-                      const Text('PANEL ADMINISTRADOR',
-                          style: TextStyle(color: Colors.white70,
-                              fontSize: 11, letterSpacing: 2,
-                              fontWeight: FontWeight.bold)),
+                      const Text(
+                        'PANEL ADMINISTRADOR',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 18),
-                      const Text('Agregar administradores',
-                          style: TextStyle(fontSize: 24,
-                              color: Colors.white, fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Agregar administradores',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      const Text('Registra un nuevo administrador en el sistema.',
-                          style: TextStyle(color: Colors.white70, fontSize: 13)),
+                      const Text(
+                        'Registra un nuevo administrador en el sistema.',
+                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
                     ],
                   ),
                 ),
@@ -259,47 +274,70 @@ class _CargaAdministradoresState extends State<CargaAdministradores> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Información del administrador',
-                            style: TextStyle(fontSize: 18,
-                                fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Información del administrador',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 18),
                         Container(
                           padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(color: Colors.white,
-                              borderRadius: BorderRadius.circular(18)),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _campo('Nombre completo', _nombre,
-                                  Icons.person_outline, ejemplo: 'Ej. Miguel García'),
+                              _campo(
+                                'Nombre completo',
+                                _nombre,
+                                Icons.person_outline,
+                                ejemplo: 'Ej. Miguel García',
+                              ),
                               const SizedBox(height: 20),
-                              _campo('Número de empleado', _numero,
-                                  Icons.numbers, ejemplo: 'Ej. 1006'),
+                              _campo(
+                                'Número de empleado',
+                                _numero,
+                                Icons.numbers,
+                                ejemplo: 'Ej. 1006',
+                              ),
                               const SizedBox(height: 20),
-                              _campo('Usuario', _usuario,
-                                  Icons.account_circle_outlined,
-                                  ejemplo: 'Ej. MiguelR'),
+                              _campo(
+                                'Usuario',
+                                _usuario,
+                                Icons.account_circle_outlined,
+                                ejemplo: 'Ej. MiguelR',
+                              ),
                               const SizedBox(height: 20),
-                              _campo('Correo electrónico', _correo,
-                                  Icons.email_outlined,
-                                  teclado: TextInputType.emailAddress,
-                                  ejemplo: 'administrador@correo.com',
-                                  validar: (v) {
-                                    if (v == null ||
-                                        !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                                            .hasMatch(v.trim())) {
-                                      return 'Ingresa un correo válido';
-                                    }
-                                    return null;
-                                  }),
+                              _campo(
+                                'Correo electrónico',
+                                _correo,
+                                Icons.email_outlined,
+                                teclado: TextInputType.emailAddress,
+                                ejemplo: 'administrador@correo.com',
+                                validar: (v) {
+                                  if (v == null ||
+                                      !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+                                          .hasMatch(v.trim())) {
+                                    return 'Ingresa un correo válido';
+                                  }
+                                  return null;
+                                },
+                              ),
                               const SizedBox(height: 20),
-                              _campo('Contraseña', _contrasena,
-                                  Icons.lock_outline,
-                                  esContrasena: true,
-                                  ejemplo: 'Mínimo 8 caracteres',
-                                  validar: (v) => v == null || v.length < 8
-                                      ? 'Mínimo 8 caracteres'
-                                      : null),
+                              _campo(
+                                'Contraseña',
+                                _contrasena,
+                                Icons.lock_outline,
+                                esContrasena: true,
+                                ejemplo: 'Mínimo 8 caracteres',
+                                validar: (v) => v == null || v.length < 8
+                                    ? 'Mínimo 8 caracteres'
+                                    : null,
+                              ),
                             ],
                           ),
                         ),
@@ -310,8 +348,13 @@ class _CargaAdministradoresState extends State<CargaAdministradores> {
                           child: ElevatedButton.icon(
                             onPressed: _guardando ? null : _guardar,
                             icon: _guardando
-                                ? const SizedBox(width: 18, height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2))
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
                                 : const Icon(Icons.save_outlined),
                             label: const Text('Guardar administrador'),
                             style: ElevatedButton.styleFrom(
@@ -327,53 +370,76 @@ class _CargaAdministradoresState extends State<CargaAdministradores> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Administradores registrados',
-                                style: TextStyle(fontSize: 19,
-                                    fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Administradores registrados',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             IconButton(
                               tooltip: 'Actualizar',
                               onPressed: _cargando ? null : _cargar,
-                              icon: const Icon(Icons.refresh,
-                                  color: Colors.deepPurple),
+                              icon: const Icon(
+                                Icons.refresh,
+                                color: Colors.deepPurple,
+                              ),
                             ),
                           ],
                         ),
                         if (_cargando)
-                          const Center(child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: CircularProgressIndicator(),
-                          ))
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
                         else if (_error != null)
-                          Text(_error!, style: const TextStyle(color: Colors.red))
+                          Text(
+                            _error!,
+                            style: const TextStyle(color: Colors.red),
+                          )
                         else if (_administradores.isEmpty)
                           const Text('No hay administradores registrados')
                         else
-                          ..._administradores.map((admin) => Card(
-                            color: Colors.white,
-                            margin: const EdgeInsets.only(bottom: 10),
-                            child: ListTile(
-                              leading: const CircleAvatar(
-                                backgroundColor: Color(0xFFEDE4FF),
-                                child: Icon(Icons.admin_panel_settings_outlined,
-                                    color: Colors.deepPurple),
-                              ),
-                              title: Text((admin['nombre'] ?? '').toString(),
-                                  style: const TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Text(
-                                '${admin['numeroEmpleado'] ?? ''} · ${admin['correo'] ?? ''}'
-                                '${admin['esActual'] == true ? ' · Tu cuenta' : ''}',
-                              ),
-                              trailing: IconButton(
-                                tooltip: admin['esActual'] == true
-                                    ? 'No puedes eliminarte'
-                                    : 'Eliminar administrador',
-                                onPressed: _guardando || admin['esActual'] == true
-                                    ? null : () => _eliminar(admin),
-                                icon: const Icon(Icons.delete_outline,
-                                    color: Colors.redAccent),
+                          ..._administradores.map(
+                            (admin) => Card(
+                              color: Colors.white,
+                              margin: const EdgeInsets.only(bottom: 10),
+                              child: ListTile(
+                                leading: const CircleAvatar(
+                                  backgroundColor: Color(0xFFEDE4FF),
+                                  child: Icon(
+                                    Icons.admin_panel_settings_outlined,
+                                    color: Colors.deepPurple,
+                                  ),
+                                ),
+                                title: Text(
+                                  (admin['nombre'] ?? '').toString(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${admin['numeroEmpleado'] ?? ''} · ${admin['correo'] ?? ''}'
+                                  '${admin['esActual'] == true ? ' · Tu cuenta' : ''}',
+                                ),
+                                trailing: IconButton(
+                                  tooltip: admin['esActual'] == true
+                                      ? 'No puedes eliminarte'
+                                      : 'Eliminar administrador',
+                                  onPressed:
+                                      _guardando || admin['esActual'] == true
+                                      ? null
+                                      : () => _eliminar(admin),
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
                               ),
                             ),
-                          )),
+                          ),
                       ],
                     ),
                   ),

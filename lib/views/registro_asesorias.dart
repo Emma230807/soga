@@ -74,22 +74,36 @@ class _RegistroAsesoriasState extends State<RegistroAsesorias> {
     final relacion = _relaciones.where(
       (r) => _clave(r) == _relacionSeleccionada,
     );
-    if (motivo.isEmpty || motivo.length > 150 || relacion.isEmpty ||
-        _matriculaSeleccionada == null || _fechaSeleccionada == null ||
+    if (motivo.isEmpty ||
+        motivo.length > 150 ||
+        relacion.isEmpty ||
+        _matriculaSeleccionada == null ||
+        _fechaSeleccionada == null ||
         _horaSeleccionada == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Completa todos los campos (motivo máximo 150 caracteres)')),
+        const SnackBar(
+          content: Text(
+            'Completa todos los campos (motivo máximo 150 caracteres)',
+          ),
+        ),
       );
       return;
     }
 
     final fecha = _fechaSeleccionada!;
     final hora = _horaSeleccionada!;
-    final fechaHora = DateTime(fecha.year, fecha.month, fecha.day,
-        hora.hour, hora.minute);
+    final fechaHora = DateTime(
+      fecha.year,
+      fecha.month,
+      fecha.day,
+      hora.hour,
+      hora.minute,
+    );
     if (fechaHora.isBefore(DateTime.now())) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La fecha y hora deben ser actuales o futuras')),
+        const SnackBar(
+          content: Text('La fecha y hora deben ser actuales o futuras'),
+        ),
       );
       return;
     }
@@ -125,10 +139,11 @@ class _RegistroAsesoriasState extends State<RegistroAsesorias> {
 
   @override
   Widget build(BuildContext context) {
-    final profesor = DatosTemporales.sesionActual?.nombre ?? 'Profesor autenticado';
-    final disponibles = _alumnos.where(
-      (alumno) => _clave(alumno) == _relacionSeleccionada,
-    ).toList();
+    final profesor =
+        DatosTemporales.sesionActual?.nombre ?? 'Profesor autenticado';
+    final disponibles = _alumnos
+        .where((alumno) => _clave(alumno) == _relacionSeleccionada)
+        .toList();
     final alumnosUnicos = <String, String>{};
     for (final alumno in disponibles) {
       final matricula = alumno['matricula']?.toString();
@@ -164,9 +179,14 @@ class _RegistroAsesoriasState extends State<RegistroAsesorias> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('No se pudieron cargar las relaciones: ${snapshot.error}',
-                              textAlign: TextAlign.center),
-                          TextButton(onPressed: _recargar, child: const Text('Reintentar')),
+                          Text(
+                            'No se pudieron cargar las relaciones: ${snapshot.error}',
+                            textAlign: TextAlign.center,
+                          ),
+                          TextButton(
+                            onPressed: _recargar,
+                            child: const Text('Reintentar'),
+                          ),
                         ],
                       ),
                     ),
@@ -175,19 +195,30 @@ class _RegistroAsesoriasState extends State<RegistroAsesorias> {
                 return ListView(
                   padding: const EdgeInsets.all(18),
                   children: [
-                    const Text('Información de la asesoría',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    const Text(
+                      'Información de la asesoría',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                     const SizedBox(height: 14),
                     Card(
                       color: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(18),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Profesor: $profesor',
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+                              'Profesor: $profesor',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const SizedBox(height: 18),
                             TextField(
                               controller: _motivoController,
@@ -205,42 +236,71 @@ class _RegistroAsesoriasState extends State<RegistroAsesorias> {
                               isExpanded: true,
                               decoration: const InputDecoration(
                                 labelText: 'Grupo y materia',
-                                prefixIcon: Icon(Icons.menu_book, color: Color(0xFF7043FF)),
+                                prefixIcon: Icon(
+                                  Icons.menu_book,
+                                  color: Color(0xFF7043FF),
+                                ),
                                 border: OutlineInputBorder(),
                               ),
-                              items: _relaciones.map((fila) => DropdownMenuItem<String>(
-                                value: _clave(fila),
-                                child: Text('${fila['nombreGrupo']} · ${fila['materia']}',
-                                    overflow: TextOverflow.ellipsis),
-                              )).toList(),
-                              onChanged: _relaciones.isEmpty ? null : (valor) {
-                                setState(() {
-                                  _relacionSeleccionada = valor;
-                                  _matriculaSeleccionada = null;
-                                });
-                              },
+                              items: _relaciones
+                                  .map(
+                                    (fila) => DropdownMenuItem<String>(
+                                      value: _clave(fila),
+                                      child: Text(
+                                        '${fila['nombreGrupo']} · ${fila['materia']}',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: _relaciones.isEmpty
+                                  ? null
+                                  : (valor) {
+                                      setState(() {
+                                        _relacionSeleccionada = valor;
+                                        _matriculaSeleccionada = null;
+                                      });
+                                    },
                             ),
                             const SizedBox(height: 16),
                             DropdownButtonFormField<String>(
-                              key: ValueKey('alumno-$_relacionSeleccionada-$_matriculaSeleccionada'),
+                              key: ValueKey(
+                                'alumno-$_relacionSeleccionada-$_matriculaSeleccionada',
+                              ),
                               initialValue: _matriculaSeleccionada,
                               isExpanded: true,
                               decoration: const InputDecoration(
                                 labelText: 'Alumno',
-                                prefixIcon: Icon(Icons.person, color: Color(0xFF7043FF)),
+                                prefixIcon: Icon(
+                                  Icons.person,
+                                  color: Color(0xFF7043FF),
+                                ),
                                 border: OutlineInputBorder(),
                               ),
-                              items: alumnosUnicos.entries.map((entrada) => DropdownMenuItem<String>(
-                                value: entrada.key,
-                                child: Text(entrada.value, overflow: TextOverflow.ellipsis),
-                              )).toList(),
-                              onChanged: _relacionSeleccionada == null ? null :
-                                  (valor) => setState(() => _matriculaSeleccionada = valor),
+                              items: alumnosUnicos.entries
+                                  .map(
+                                    (entrada) => DropdownMenuItem<String>(
+                                      value: entrada.key,
+                                      child: Text(
+                                        entrada.value,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: _relacionSeleccionada == null
+                                  ? null
+                                  : (valor) => setState(
+                                      () => _matriculaSeleccionada = valor,
+                                    ),
                             ),
-                            if (_relacionSeleccionada != null && alumnosUnicos.isEmpty)
+                            if (_relacionSeleccionada != null &&
+                                alumnosUnicos.isEmpty)
                               const Padding(
                                 padding: EdgeInsets.only(top: 10),
-                                child: Text('No hay alumnos inscritos en esta materia.'),
+                                child: Text(
+                                  'No hay alumnos inscritos en esta materia.',
+                                ),
                               ),
                             const SizedBox(height: 18),
                             Row(
@@ -248,23 +308,37 @@ class _RegistroAsesoriasState extends State<RegistroAsesorias> {
                                 Expanded(
                                   child: OutlinedButton.icon(
                                     icon: const Icon(Icons.calendar_today),
-                                    label: Text(_fechaSeleccionada == null
-                                        ? 'Fecha'
-                                        : '${_fechaSeleccionada!.day}/${_fechaSeleccionada!.month}/${_fechaSeleccionada!.year}'),
+                                    label: Text(
+                                      _fechaSeleccionada == null
+                                          ? 'Fecha'
+                                          : '${_fechaSeleccionada!.day}/${_fechaSeleccionada!.month}/${_fechaSeleccionada!.year}',
+                                    ),
                                     onPressed: () async {
                                       final ahora = DateTime.now();
-                                      final hoy = DateTime(ahora.year, ahora.month, ahora.day);
-                                      final inicial = _fechaSeleccionada != null &&
+                                      final hoy = DateTime(
+                                        ahora.year,
+                                        ahora.month,
+                                        ahora.day,
+                                      );
+                                      final inicial =
+                                          _fechaSeleccionada != null &&
                                               !_fechaSeleccionada!.isBefore(hoy)
-                                          ? _fechaSeleccionada! : hoy;
+                                          ? _fechaSeleccionada!
+                                          : hoy;
                                       final elegida = await showDatePicker(
                                         context: context,
                                         initialDate: inicial,
                                         firstDate: hoy,
-                                        lastDate: DateTime(hoy.year + 5, 12, 31),
+                                        lastDate: DateTime(
+                                          hoy.year + 5,
+                                          12,
+                                          31,
+                                        ),
                                       );
                                       if (elegida != null && mounted) {
-                                        setState(() => _fechaSeleccionada = elegida);
+                                        setState(
+                                          () => _fechaSeleccionada = elegida,
+                                        );
                                       }
                                     },
                                   ),
@@ -273,14 +347,21 @@ class _RegistroAsesoriasState extends State<RegistroAsesorias> {
                                 Expanded(
                                   child: OutlinedButton.icon(
                                     icon: const Icon(Icons.access_time),
-                                    label: Text(_horaSeleccionada?.format(context) ?? 'Hora'),
+                                    label: Text(
+                                      _horaSeleccionada?.format(context) ??
+                                          'Hora',
+                                    ),
                                     onPressed: () async {
                                       final elegida = await showTimePicker(
                                         context: context,
-                                        initialTime: _horaSeleccionada ?? TimeOfDay.now(),
+                                        initialTime:
+                                            _horaSeleccionada ??
+                                            TimeOfDay.now(),
                                       );
                                       if (elegida != null && mounted) {
-                                        setState(() => _horaSeleccionada = elegida);
+                                        setState(
+                                          () => _horaSeleccionada = elegida,
+                                        );
                                       }
                                     },
                                   ),
@@ -297,18 +378,24 @@ class _RegistroAsesoriasState extends State<RegistroAsesorias> {
                       child: ElevatedButton.icon(
                         onPressed: _guardando ? null : _guardar,
                         icon: const Icon(Icons.save_outlined),
-                        label: Text(_guardando ? 'Guardando...' : 'Guardar asesoría'),
+                        label: Text(
+                          _guardando ? 'Guardando...' : 'Guardar asesoría',
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF7140FF),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
                         ),
                       ),
                     ),
                     if (_relaciones.isEmpty)
                       const Padding(
                         padding: EdgeInsets.all(16),
-                        child: Text('Aún no tienes grupos y materias asignados.'),
+                        child: Text(
+                          'Aún no tienes grupos y materias asignados.',
+                        ),
                       ),
                   ],
                 );

@@ -4,7 +4,6 @@ import 'package:soga/datasourses/profesores_supabase.dart';
 import 'package:soga/widgets/lista_admin_registros.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 class PantallaAgregarDocente extends StatefulWidget {
   const PantallaAgregarDocente({super.key});
 
@@ -260,7 +259,10 @@ class _PantallaAgregarDocenteState extends State<PantallaAgregarDocente> {
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 10,
+                ),
                 child: ListaAdminRegistros(
                   key: ValueKey(_versionLista),
                   tipo: 'docentes',

@@ -55,7 +55,9 @@ class _WidgetAsesoriaState extends State<WidgetAsesoria> {
     });
     if (idMateria == null) return;
     try {
-      final datos = await DatosTemporales.obtenerProfesoresMateriaSupabase(idMateria);
+      final datos = await DatosTemporales.obtenerProfesoresMateriaSupabase(
+        idMateria,
+      );
       if (!mounted || _idMateria != idMateria) return;
       setState(() => _profesores = datos);
     } catch (e) {
@@ -71,11 +73,18 @@ class _WidgetAsesoriaState extends State<WidgetAsesoria> {
   Future<void> _guardar() async {
     if (_guardando) return;
     final motivo = _motivoController.text.trim();
-    if (motivo.isEmpty || motivo.length > 150 ||
-        _idMateria == null || _numeroEmpleadoProf == null ||
-        _fecha == null || _hora == null) {
+    if (motivo.isEmpty ||
+        motivo.length > 150 ||
+        _idMateria == null ||
+        _numeroEmpleadoProf == null ||
+        _fecha == null ||
+        _hora == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Completa motivo, materia, profesor, fecha y hora (máx. 150 caracteres)')),
+        const SnackBar(
+          content: Text(
+            'Completa motivo, materia, profesor, fecha y hora (máx. 150 caracteres)',
+          ),
+        ),
       );
       return;
     }
@@ -121,8 +130,12 @@ class _WidgetAsesoriaState extends State<WidgetAsesoria> {
       child: SafeArea(
         top: false,
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20, 20, 20,
-              MediaQuery.viewInsetsOf(context).bottom + 20),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            MediaQuery.viewInsetsOf(context).bottom + 20,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -130,8 +143,15 @@ class _WidgetAsesoriaState extends State<WidgetAsesoria> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Expanded(child: Text('Agenda tu asesoría',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                  const Expanded(
+                    child: Text(
+                      'Agenda tu asesoría',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   IconButton(
                     onPressed: _guardando ? null : () => Navigator.pop(context),
                     icon: const Icon(Icons.close, color: Color(0xFF7043FF)),
@@ -139,76 +159,132 @@ class _WidgetAsesoriaState extends State<WidgetAsesoria> {
                 ],
               ),
               const SizedBox(height: 16),
-              const Text('Motivo', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Motivo',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               TextField(
                 controller: _motivoController,
                 maxLength: 150,
                 maxLines: 2,
-                decoration: InputDecoration(hintText: 'Motivo de tu asesoría', border: borde),
+                decoration: InputDecoration(
+                  hintText: 'Motivo de tu asesoría',
+                  border: borde,
+                ),
               ),
               const SizedBox(height: 12),
-              const Text('Materia', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Materia',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<int>(
-                value: _idMateria,
+                initialValue: _idMateria,
                 isExpanded: true,
-                decoration: InputDecoration(border: borde,
-                    hintText: _cargandoMaterias ? 'Cargando materias...' : 'Selecciona una materia'),
-                items: _materias.map((m) => DropdownMenuItem<int>(
-                  value: (m['idMateria'] as num).toInt(),
-                  child: Text(m['nombre'] as String, overflow: TextOverflow.ellipsis),
-                )).toList(),
-                onChanged: _cargandoMaterias || _guardando ? null : _seleccionarMateria,
+                decoration: InputDecoration(
+                  border: borde,
+                  hintText: _cargandoMaterias
+                      ? 'Cargando materias...'
+                      : 'Selecciona una materia',
+                ),
+                items: _materias
+                    .map(
+                      (m) => DropdownMenuItem<int>(
+                        value: (m['idMateria'] as num).toInt(),
+                        child: Text(
+                          m['nombre'] as String,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: _cargandoMaterias || _guardando
+                    ? null
+                    : _seleccionarMateria,
               ),
               const SizedBox(height: 16),
-              const Text('Profesor', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Profesor',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 key: ValueKey(_idMateria),
-                value: _numeroEmpleadoProf,
+                initialValue: _numeroEmpleadoProf,
                 isExpanded: true,
-                decoration: InputDecoration(border: borde, hintText:
-                    _idMateria == null ? 'Primero selecciona una materia' :
-                    _cargandoProfesores ? 'Cargando profesores...' :
-                    _profesores.isEmpty ? 'No hay profesores asignados' : 'Selecciona un profesor'),
-                items: _profesores.map((p) => DropdownMenuItem<String>(
-                  value: p['numeroEmpleadoProf'] as String,
-                  child: Text(p['nombreCompleto'] as String, overflow: TextOverflow.ellipsis),
-                )).toList(),
-                onChanged: _idMateria == null || _cargandoProfesores || _guardando || _profesores.isEmpty
-                    ? null : (valor) => setState(() => _numeroEmpleadoProf = valor),
+                decoration: InputDecoration(
+                  border: borde,
+                  hintText: _idMateria == null
+                      ? 'Primero selecciona una materia'
+                      : _cargandoProfesores
+                      ? 'Cargando profesores...'
+                      : _profesores.isEmpty
+                      ? 'No hay profesores asignados'
+                      : 'Selecciona un profesor',
+                ),
+                items: _profesores
+                    .map(
+                      (p) => DropdownMenuItem<String>(
+                        value: p['numeroEmpleadoProf'] as String,
+                        child: Text(
+                          p['nombreCompleto'] as String,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged:
+                    _idMateria == null ||
+                        _cargandoProfesores ||
+                        _guardando ||
+                        _profesores.isEmpty
+                    ? null
+                    : (valor) => setState(() => _numeroEmpleadoProf = valor),
               ),
               if (_error != null) ...[
                 const SizedBox(height: 10),
                 Text(_error!, style: const TextStyle(color: Colors.red)),
               ],
               const SizedBox(height: 18),
-              Row(children: [
-                Expanded(child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Fecha', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    SelectorFecha(
-                      fechaSeleccionada: _fecha,
-                      onSeleccionar: (fecha) => setState(() => _fecha = fecha),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Fecha',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        SelectorFecha(
+                          fechaSeleccionada: _fecha,
+                          onSeleccionar: (fecha) =>
+                              setState(() => _fecha = fecha),
+                        ),
+                      ],
                     ),
-                  ],
-                )),
-                const SizedBox(width: 12),
-                Expanded(child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Hora', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    SelectorHora(
-                      horaSeleccionada: _hora,
-                      onSeleccionar: (hora) => setState(() => _hora = hora),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Hora',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        SelectorHora(
+                          horaSeleccionada: _hora,
+                          onSeleccionar: (hora) => setState(() => _hora = hora),
+                        ),
+                      ],
                     ),
-                  ],
-                )),
-              ]),
+                  ),
+                ],
+              ),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -218,10 +294,14 @@ class _WidgetAsesoriaState extends State<WidgetAsesoria> {
                     backgroundColor: const Color(0xFF7043FF),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: Text(_guardando ? 'Guardando...' : 'Solicitar asesoría',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    _guardando ? 'Guardando...' : 'Solicitar asesoría',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],

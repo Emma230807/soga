@@ -25,7 +25,9 @@ class _AltaGrupoState extends State<AltaGrupo> {
   }
 
   Future<List<Map<String, dynamic>>> _obtenerGrupos() async {
-    final respuesta = await Supabase.instance.client.rpc('soga_admin_listar_grupos');
+    final respuesta = await Supabase.instance.client.rpc(
+      'soga_admin_listar_grupos',
+    );
     if (respuesta is! List) {
       throw const FormatException('La consulta no devolvió una lista');
     }
@@ -145,7 +147,10 @@ class _AltaGrupoState extends State<AltaGrupo> {
                     child: ListTile(
                       leading: const CircleAvatar(
                         backgroundColor: Color(0xFFEDE4FF),
-                        child: Icon(Icons.groups_outlined, color: Colors.deepPurple),
+                        child: Icon(
+                          Icons.groups_outlined,
+                          color: Colors.deepPurple,
+                        ),
                       ),
                       title: Text(
                         (grupo['idGrupo'] ?? '').toString(),
@@ -154,8 +159,13 @@ class _AltaGrupoState extends State<AltaGrupo> {
                       subtitle: Text((grupo['nombreGrupo'] ?? '').toString()),
                       trailing: IconButton(
                         tooltip: 'Eliminar grupo',
-                        onPressed: _eliminando ? null : () => _eliminarGrupo(grupo),
-                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                        onPressed: _eliminando
+                            ? null
+                            : () => _eliminarGrupo(grupo),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.redAccent,
+                        ),
                       ),
                     ),
                   ),

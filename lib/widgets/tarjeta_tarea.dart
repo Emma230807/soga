@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+
 import '../models/tarea.dart';
 
 class TarjetaTarea extends StatelessWidget {
@@ -47,9 +47,7 @@ class TarjetaTarea extends StatelessWidget {
             width: 3,
             height: 35,
             decoration: BoxDecoration(
-              color: tarea.completada
-                  ? Colors.green
-                  : Colors.deepPurple,
+              color: tarea.completada ? Colors.green : Colors.deepPurple,
               borderRadius: BorderRadius.circular(3),
             ),
           ),
@@ -76,10 +74,7 @@ class TarjetaTarea extends StatelessWidget {
 
                 Text(
                   tarea.fechaEntrega,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 11, color: Colors.grey),
                 ),
               ],
             ),
@@ -88,10 +83,7 @@ class TarjetaTarea extends StatelessWidget {
           // BOTÓN PARA ELIMINAR LA TAREA
           IconButton(
             onPressed: onEliminar,
-            icon: Icon(
-              Icons.delete_outline,
-              color: Colors.redAccent,
-            ),
+            icon: Icon(Icons.delete_outline, color: Colors.redAccent),
           ),
         ],
       ),

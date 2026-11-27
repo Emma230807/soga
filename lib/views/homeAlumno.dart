@@ -388,7 +388,8 @@ class _HomeAlumnoState extends State<HomeAlumno> {
                             'Actividades del profesor',
                             style: TextStyle(color: Colors.white),
                           ),
-                          if (!_cargandoActividades && _errorActividades == null)
+                          if (!_cargandoActividades &&
+                              _errorActividades == null)
                             Text(
                               '$_completadasActividadesDocente/$_totalActividadesDocente completadas',
                               style: const TextStyle(color: Colors.white),

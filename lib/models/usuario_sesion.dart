@@ -10,7 +10,6 @@ class UsuarioSesion {
   final String? numeroEmpleadoProf;
   final String? numeroEmpleadoAdmin;
 
-
   const UsuarioSesion({
     required this.id,
     required this.nombre,

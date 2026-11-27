@@ -12,7 +12,8 @@ class FormularioAsignarActividad extends StatefulWidget {
       _FormularioAsignarActividadState();
 }
 
-class _FormularioAsignarActividadState extends State<FormularioAsignarActividad> {
+class _FormularioAsignarActividadState
+    extends State<FormularioAsignarActividad> {
   final TextEditingController _actividadController = TextEditingController();
   late final Future<List<Map<String, dynamic>>> _relaciones;
   String? _seleccion;
@@ -32,7 +33,9 @@ class _FormularioAsignarActividadState extends State<FormularioAsignarActividad>
     }
     final respuesta = await cliente.rpc('soga_docente_grupos');
     if (respuesta is! List) {
-      throw const FormatException('No se pudieron leer los grupos del docente.');
+      throw const FormatException(
+        'No se pudieron leer los grupos del docente.',
+      );
     }
     return respuesta
         .map((fila) => Map<String, dynamic>.from(fila as Map))
@@ -49,7 +52,9 @@ class _FormularioAsignarActividadState extends State<FormularioAsignarActividad>
       setState(() => _error = 'Ingresa una actividad de 1 a 150 caracteres.');
       return;
     }
-    final seleccionadas = relaciones.where((fila) => _clave(fila) == _seleccion);
+    final seleccionadas = relaciones.where(
+      (fila) => _clave(fila) == _seleccion,
+    );
     if (seleccionadas.isEmpty) {
       setState(() => _error = 'Selecciona un grupo y una materia.');
       return;
@@ -72,7 +77,9 @@ class _FormularioAsignarActividadState extends State<FormularioAsignarActividad>
       final cantidad = (resultado as num).toInt();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Actividad asignada a $cantidad ${cantidad == 1 ? 'alumno' : 'alumnos'}.'),
+          content: Text(
+            'Actividad asignada a $cantidad ${cantidad == 1 ? 'alumno' : 'alumnos'}.',
+          ),
         ),
       );
       Navigator.pop(context, true);
@@ -80,7 +87,9 @@ class _FormularioAsignarActividadState extends State<FormularioAsignarActividad>
       if (mounted) setState(() => _error = e.message);
     } catch (_) {
       if (mounted) {
-        setState(() => _error = 'No se pudo asignar la actividad. Revisa tu conexión.');
+        setState(
+          () => _error = 'No se pudo asignar la actividad. Revisa tu conexión.',
+        );
       }
     } finally {
       if (mounted) setState(() => _guardando = false);
@@ -110,33 +119,48 @@ class _FormularioAsignarActividadState extends State<FormularioAsignarActividad>
               );
             }
             if (snapshot.hasError) {
-              return Text('No se pudieron cargar los grupos: ${snapshot.error}');
+              return Text(
+                'No se pudieron cargar los grupos: ${snapshot.error}',
+              );
             }
             final relaciones = snapshot.data ?? [];
             if (relaciones.isEmpty) {
-              return const Text('Todavía no tienes grupos y materias asignados.');
+              return const Text(
+                'Todavía no tienes grupos y materias asignados.',
+              );
             }
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Se asignará a todos los alumnos inscritos en la relación seleccionada.'),
+                const Text(
+                  'Se asignará a todos los alumnos inscritos en la relación seleccionada.',
+                ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: _seleccion,
                   isExpanded: true,
                   decoration: InputDecoration(
                     labelText: 'Grupo y materia',
-                    prefixIcon: const Icon(Icons.groups, color: Color(0xFF7043FF)),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  items: relaciones.map((fila) => DropdownMenuItem<String>(
-                    value: _clave(fila),
-                    child: Text(
-                      '${fila['nombreGrupo']} · ${fila['materia']}',
-                      overflow: TextOverflow.ellipsis,
+                    prefixIcon: const Icon(
+                      Icons.groups,
+                      color: Color(0xFF7043FF),
                     ),
-                  )).toList(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  items: relaciones
+                      .map(
+                        (fila) => DropdownMenuItem<String>(
+                          value: _clave(fila),
+                          child: Text(
+                            '${fila['nombreGrupo']} · ${fila['materia']}',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                      .toList(),
                   onChanged: _guardando
                       ? null
                       : (valor) => setState(() => _seleccion = valor),
@@ -152,7 +176,9 @@ class _FormularioAsignarActividadState extends State<FormularioAsignarActividad>
                     labelText: 'Actividad',
                     hintText: 'Realizar práctica de Flutter',
                     prefixIcon: const Icon(Icons.assignment_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
                 if (_error != null) ...[
@@ -164,7 +190,9 @@ class _FormularioAsignarActividadState extends State<FormularioAsignarActividad>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed: _guardando ? null : () => Navigator.pop(context, false),
+                      onPressed: _guardando
+                          ? null
+                          : () => Navigator.pop(context, false),
                       child: const Text('Cancelar'),
                     ),
                     const SizedBox(width: 8),
@@ -178,7 +206,10 @@ class _FormularioAsignarActividadState extends State<FormularioAsignarActividad>
                           ? const SizedBox(
                               width: 18,
                               height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
                           : const Text('Asignar'),
                     ),

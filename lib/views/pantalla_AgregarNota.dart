@@ -43,21 +43,25 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
     try {
       if (widget.notaInicial == null) {
         await DatosTemporales.guardarNotaSupabase(
-          titulo: titulo, contenido: contenido, color: colorSeleccionado,
+          titulo: titulo,
+          contenido: contenido,
+          color: colorSeleccionado,
         );
       } else {
         await DatosTemporales.actualizarNotaSupabase(
           idNota: widget.notaInicial!.id,
-          titulo: titulo, contenido: contenido, color: colorSeleccionado,
+          titulo: titulo,
+          contenido: contenido,
+          color: colorSeleccionado,
         );
       }
       if (!mounted) return;
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo guardar la nota: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('No se pudo guardar la nota: $e')));
     } finally {
       if (mounted) setState(() => _guardando = false);
     }
@@ -78,8 +82,10 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
         backgroundColor: const Color(0xFF7043FF),
         foregroundColor: Colors.white,
         elevation: 0,
-        title: Text(widget.notaInicial == null ? 'Agregar nota' : 'Editar nota',
-          style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          widget.notaInicial == null ? 'Agregar nota' : 'Editar nota',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         flexibleSpace: const DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -94,12 +100,21 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
             onPressed: _guardando ? null : guardarNota,
             icon: _guardando
                 ? const SizedBox(
-                    width: 16, height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 : const Icon(Icons.save_outlined, color: Colors.white),
-            label: Text(_guardando ? 'Guardando...' : 'Guardar',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            label: Text(
+              _guardando ? 'Guardando...' : 'Guardar',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           const SizedBox(width: 12),
         ],
@@ -117,70 +132,98 @@ class _PantallaAgregarnotaState extends State<PantallaAgregarnota> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(26)),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(26),
+                ),
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.menu_book_outlined, color: Colors.white, size: 22),
+                      Icon(
+                        Icons.menu_book_outlined,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                       SizedBox(width: 10),
-                      Text('MI ESPACIO ESCOLAR',
-                        style: TextStyle(color: Colors.white70, letterSpacing: 2,
-                          fontWeight: FontWeight.w600, fontSize: 12)),
+                      Text(
+                        'MI ESPACIO ESCOLAR',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 14),
-                  Text('Organiza, Aprende y Avanza',
-                    style: TextStyle(color: Colors.white, fontSize: 24,
-                      fontWeight: FontWeight.bold)),
+                  Text(
+                    'Organiza, Aprende y Avanza',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 8),
-                  Text('Guarda tus ideas y apuntes en un solo lugar',
-                    style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  Text(
+                    'Guarda tus ideas y apuntes en un solo lugar',
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
                 ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(20),
               child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: colorSeleccionado,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Color de la nota', style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  SelectorColores(
-                    colorSeleccionado: colorSeleccionado,
-                    onSeleccionar: (color) => setState(() => colorSeleccionado = color),
-                  ),
-                  const Divider(height: 30),
-                  TextField(
-                    controller: tituloController,
-                    maxLength: 150,
-                    decoration: const InputDecoration(
-                      hintText: 'Título de la nota...', border: InputBorder.none,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: colorSeleccionado,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.black12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Color de la nota',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  const Divider(),
-                  TextField(
-                    controller: notaController,
-                    minLines: 9,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    decoration: const InputDecoration(
-                      hintText: 'Escribe tu nota...', border: InputBorder.none,
+                    const SizedBox(height: 10),
+                    SelectorColores(
+                      colorSeleccionado: colorSeleccionado,
+                      onSeleccionar: (color) =>
+                          setState(() => colorSeleccionado = color),
                     ),
-                  ),
-                ],
+                    const Divider(height: 30),
+                    TextField(
+                      controller: tituloController,
+                      maxLength: 150,
+                      decoration: const InputDecoration(
+                        hintText: 'Título de la nota...',
+                        border: InputBorder.none,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Divider(),
+                    TextField(
+                      controller: notaController,
+                      minLines: 9,
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      decoration: const InputDecoration(
+                        hintText: 'Escribe tu nota...',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
             ),
           ],
         ),

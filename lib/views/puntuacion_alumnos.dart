@@ -17,7 +17,11 @@ class _DatosAvance {
   final List<Map<String, dynamic>> alumnos;
   final List<Map<String, dynamic>> actividades;
 
-  const _DatosAvance({required this.relaciones, required this.alumnos, required this.actividades});
+  const _DatosAvance({
+    required this.relaciones,
+    required this.alumnos,
+    required this.actividades,
+  });
 }
 
 class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
@@ -33,7 +37,9 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
   Future<_DatosAvance> _cargar() async {
     final supabase = Supabase.instance.client;
     if (supabase.auth.currentUser == null) {
-      throw StateError('Inicia sesion como profesor para consultar los alumnos.');
+      throw StateError(
+        'Inicia sesion como profesor para consultar los alumnos.',
+      );
     }
 
     final respuestas = await Future.wait<dynamic>([
@@ -46,7 +52,9 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
       if (datos is! List) {
         throw const FormatException('Supabase no devolvio una lista valida.');
       }
-      return datos.map((dato) => Map<String, dynamic>.from(dato as Map)).toList();
+      return datos
+          .map((dato) => Map<String, dynamic>.from(dato as Map))
+          .toList();
     }
 
     return _DatosAvance(
@@ -101,8 +109,11 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
     final completadas = (alumno['completadas'] as num?)?.toInt() ?? 0;
     final progreso = total <= 0 ? 0.0 : (completadas / total).clamp(0.0, 1.0);
     final matricula = alumno['matricula']?.toString();
-    final asignadas = actividades.where((a) =>
-        matricula != null && a['matricula']?.toString() == matricula).toList();
+    final asignadas = actividades
+        .where(
+          (a) => matricula != null && a['matricula']?.toString() == matricula,
+        )
+        .toList();
     final hechas = asignadas.where((a) => a['estado'] == true).length;
     final cumplimiento = asignadas.isEmpty ? 0.0 : hechas / asignadas.length;
 
@@ -166,11 +177,13 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
             ),
             const SizedBox(height: 18),
             const Divider(),
-            const Text('Actividades del profesor',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Actividades del profesor',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             Text(
-              '${hechas} de ${asignadas.length} actividades completadas '
+              '$hechas de ${asignadas.length} actividades completadas '
               '(${(cumplimiento * 100).round()} %)',
               style: const TextStyle(fontSize: 13, color: Colors.black54),
             ),
@@ -188,8 +201,10 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
             ),
             const SizedBox(height: 10),
             if (asignadas.isEmpty)
-              const Text('Aún no tiene actividades asignadas.',
-                  style: TextStyle(color: Colors.black54))
+              const Text(
+                'Aún no tiene actividades asignadas.',
+                style: TextStyle(color: Colors.black54),
+              )
             else
               ...asignadas.map((actividad) {
                 final realizada = actividad['estado'] == true;
@@ -198,14 +213,19 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
                   child: Row(
                     children: [
                       Icon(
-                        realizada ? Icons.check_circle : Icons.radio_button_unchecked,
-                        color: realizada ? Colors.green : const Color(0xFF9279C8),
+                        realizada
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: realizada
+                            ? Colors.green
+                            : const Color(0xFF9279C8),
                         size: 20,
                       ),
                       const SizedBox(width: 9),
                       Expanded(
                         child: Text(
-                          actividad['actividad']?.toString() ?? 'Sin descripción',
+                          actividad['actividad']?.toString() ??
+                              'Sin descripción',
                           style: const TextStyle(fontSize: 13),
                         ),
                       ),
@@ -213,7 +233,9 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
                         realizada ? 'Completada' : 'Pendiente',
                         style: TextStyle(
                           fontSize: 12,
-                          color: realizada ? Colors.green.shade700 : Colors.black54,
+                          color: realizada
+                              ? Colors.green.shade700
+                              : Colors.black54,
                         ),
                       ),
                     ],
@@ -247,11 +269,16 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.error_outline,
-                              color: Colors.deepPurple, size: 40),
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.deepPurple,
+                            size: 40,
+                          ),
                           const SizedBox(height: 12),
-                          Text('No se pudo cargar el avance: ${snapshot.error}',
-                              textAlign: TextAlign.center),
+                          Text(
+                            'No se pudo cargar el avance: ${snapshot.error}',
+                            textAlign: TextAlign.center,
+                          ),
                           TextButton(
                             onPressed: _actualizar,
                             child: const Text('Reintentar'),
@@ -274,13 +301,17 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
                     ? _relacionSeleccionada!
                     : _clave(datos.relaciones.first);
                 final actividadesGrupo = datos.actividades.where((actividad) {
-                  return '${actividad['idGrupo']}|${actividad['idMateria']}' == seleccion;
+                  return '${actividad['idGrupo']}|${actividad['idMateria']}' ==
+                      seleccion;
                 }).toList();
-                final alumnos = datos.alumnos.where((alumno) {
-                  return alumno['cveInscripcion']?.toString() == seleccion;
-                }).toList()
-                  ..sort((a, b) => (a['nombre']?.toString() ?? '')
-                      .compareTo(b['nombre']?.toString() ?? ''));
+                final alumnos =
+                    datos.alumnos.where((alumno) {
+                      return alumno['cveInscripcion']?.toString() == seleccion;
+                    }).toList()..sort(
+                      (a, b) => (a['nombre']?.toString() ?? '').compareTo(
+                        b['nombre']?.toString() ?? '',
+                      ),
+                    );
 
                 return RefreshIndicator(
                   onRefresh: _recargar,
@@ -345,8 +376,10 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
                           IconButton(
                             tooltip: 'Actualizar',
                             onPressed: _actualizar,
-                            icon: const Icon(Icons.refresh,
-                                color: Color(0xFF7043FF)),
+                            icon: const Icon(
+                              Icons.refresh,
+                              color: Color(0xFF7043FF),
+                            ),
                           ),
                         ],
                       ),
@@ -359,11 +392,15 @@ class _PuntuacionAlumnosState extends State<PuntuacionAlumnos> {
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 35),
                           child: Center(
-                            child: Text('No hay alumnos inscritos en esta relación.'),
+                            child: Text(
+                              'No hay alumnos inscritos en esta relación.',
+                            ),
                           ),
                         )
                       else
-                        ...alumnos.map((alumno) => _tarjeta(alumno, actividadesGrupo)),
+                        ...alumnos.map(
+                          (alumno) => _tarjeta(alumno, actividadesGrupo),
+                        ),
                     ],
                   ),
                 );

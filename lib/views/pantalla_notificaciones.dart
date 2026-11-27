@@ -81,8 +81,11 @@ class _PantallaNotificacionesState extends State<PantallaNotificaciones> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.notifications_active_outlined,
-                            color: Colors.white, size: 26),
+                        Icon(
+                          Icons.notifications_active_outlined,
+                          color: Colors.white,
+                          size: 26,
+                        ),
                         SizedBox(width: 10),
                         Text(
                           'MI ESPACIO ESCOLAR',
@@ -130,15 +133,22 @@ class _PantallaNotificacionesState extends State<PantallaNotificaciones> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.error_outline,
-                              color: Colors.deepPurple, size: 40),
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.deepPurple,
+                            size: 40,
+                          ),
                           const SizedBox(height: 12),
-                          const Text('No se pudieron cargar las notificaciones',
-                              textAlign: TextAlign.center),
+                          const Text(
+                            'No se pudieron cargar las notificaciones',
+                            textAlign: TextAlign.center,
+                          ),
                           const SizedBox(height: 8),
-                          Text('${snapshot.error}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.black54)),
+                          Text(
+                            '${snapshot.error}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.black54),
+                          ),
                           const SizedBox(height: 12),
                           OutlinedButton(
                             onPressed: _actualizar,
@@ -159,12 +169,17 @@ class _PantallaNotificacionesState extends State<PantallaNotificaciones> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.notifications_none,
-                                size: 56, color: Color(0xFF9279C8)),
+                            Icon(
+                              Icons.notifications_none,
+                              size: 56,
+                              color: Color(0xFF9279C8),
+                            ),
                             SizedBox(height: 12),
-                            Text('Todavía no tienes notificaciones',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 16)),
+                            Text(
+                              'Todavía no tienes notificaciones',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ],
                         ),
                       ),
@@ -174,75 +189,72 @@ class _PantallaNotificacionesState extends State<PantallaNotificaciones> {
                 return SliverPadding(
                   padding: const EdgeInsets.all(16),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final aviso = notificaciones[index];
-                        final mensaje =
-                            (aviso['mensaje'] as String?)?.trim() ?? '';
-                        final profesor =
-                            (aviso['nombreProfesor'] as String?)?.trim();
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          color: Colors.white,
-                          elevation: 1,
-                          shadowColor: const Color(0x337043FF),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(11),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEDE4FF),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Icon(
-                                    Icons.notifications_outlined,
-                                    color: Color(0xFF7043FF),
-                                    size: 25,
-                                  ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final aviso = notificaciones[index];
+                      final mensaje =
+                          (aviso['mensaje'] as String?)?.trim() ?? '';
+                      final profesor = (aviso['nombreProfesor'] as String?)
+                          ?.trim();
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        color: Colors.white,
+                        elevation: 1,
+                        shadowColor: const Color(0x337043FF),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(11),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEDE4FF),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Aviso recibido',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                child: const Icon(
+                                  Icons.notifications_outlined,
+                                  color: Color(0xFF7043FF),
+                                  size: 25,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Aviso recibido',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      mensaje.isEmpty ? 'Sin mensaje' : mensaje,
+                                    ),
+                                    if (profesor != null &&
+                                        profesor.isNotEmpty) ...[
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Profesor: $profesor',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
                                         ),
                                       ),
-                                      const SizedBox(height: 6),
-                                      Text(mensaje.isEmpty
-                                          ? 'Sin mensaje'
-                                          : mensaje),
-                                      if (profesor != null &&
-                                          profesor.isNotEmpty) ...[
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Profesor: $profesor',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                      ],
                                     ],
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      childCount: notificaciones.length,
-                    ),
+                        ),
+                      );
+                    }, childCount: notificaciones.length),
                   ),
                 );
               },

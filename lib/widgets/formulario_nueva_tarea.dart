@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soga/datasourses/datos_temporales.dart';
-import 'package:soga/widgets/selectorColores.dart';
+import 'package:soga/widgets/selectorcolores.dart';
 import 'package:soga/widgets/selector_fecha.dart';
 import 'package:soga/widgets/selector_materia.dart';
 import 'package:soga/widgets/selector_prioridad.dart';
@@ -67,9 +67,9 @@ class _FormularioNuevaTarea extends State<FormularioNuevaTarea> {
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo crear la tarea: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('No se pudo crear la tarea: $e')));
     } finally {
       if (mounted) setState(() => guardando = false);
     }
@@ -140,7 +140,10 @@ class _FormularioNuevaTarea extends State<FormularioNuevaTarea> {
 
               SizedBox(height: 10),
 
-              Text("Descripción", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                "Descripción",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               TextField(
                 controller: descripcionController,
                 minLines: 3,
